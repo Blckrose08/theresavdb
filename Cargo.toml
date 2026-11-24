@@ -15,6 +15,10 @@ members = [
     "crates/planner",
     "crates/optimizer",
     "crates/executor",
+    "crates/lock-manager",
+    "crates/mvcc",
+    "crates/transaction",
+    "crates/recovery",
 ]
 
 [workspace.package]
@@ -50,3 +54,9 @@ theresav_parser = { path = "crates/parser" }
 theresav_binder = { path = "crates/binder" }
 theresav_planner = { path = "crates/planner" }
 theresav_optimizer = { path = "crates/optimizer" }
+theresav_executor = { path = "crates/executor" }
+theresav_lock_manager = { path = "crates/lock-manager" }
+theresav_mvcc = { path = "crates/mvcc" }
+theresav_transaction = { path = "crates/transaction" }
+theresav_recovery = { path = "crates/recovery" }
+theresav_wal = { path = "crates/wal" }
