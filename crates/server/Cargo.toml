@@ -1,0 +1,22 @@
+[package]
+name = "theresav_server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+theresav_types = { workspace = true }
+theresav_protocol = { path = "../protocol" }
+theresav_embedded = { path = "../embedded" }
+theresav_auth = { path = "../auth" }
+tokio = { workspace = true }
+bytes = { workspace = true }
+byteorder = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

@@ -1,0 +1,20 @@
+[package]
+name = "theresav_cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "theresav-cli"
+path = "src/main.rs"
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+theresav_types = { workspace = true }
+theresav_protocol = { path = "../protocol" }
+theresav_embedded = { path = "../embedded" }
+tokio = { workspace = true }
