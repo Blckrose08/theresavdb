@@ -5,10 +5,24 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc"
   },
-  "keywords": ["database", "theresavdb", "rdbms", "sql", "driver"],
+  "keywords": [
+    "database",
+    "theresavdb",
+    "rdbms",
+    "sql",
+    "driver"
+  ],
   "author": "TheresavDB Contributors",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.0.0"
+  }
 }

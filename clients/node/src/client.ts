@@ -18,7 +18,7 @@ export class TheresavClient {
   public async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.socket.connect(this.port, this.host, () => resolve());
-      this.socket.on('error', (err) => reject(err));
+      this.socket.on('error', (err: Error) => reject(err));
     });
   }
 

@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://crates.io/crates/theresavdb-client"><img src="https://img.shields.io/crates/v/theresavdb-client.svg?style=flat-square&color=blue" alt="crates.io version"></a>
+  <a href="https://www.npmjs.com/package/@theresav/db"><img src="https://img.shields.io/npm/v/@theresav/db.svg?style=flat-square&color=blue" alt="npm version"></a>
   <a href="https://pypi.org/project/theresavdb/"><img src="https://img.shields.io/pypi/v/theresavdb.svg?style=flat-square&color=blue" alt="PyPI version"></a>
   <a href="https://hub.docker.com/r/blckrose08/theresavdb"><img src="https://img.shields.io/badge/docker-blckrose08%2Ftheresavdb-blue.svg?style=flat-square&logo=docker" alt="Docker Hub"></a>
   <a href="https://docs.rs/theresavdb-client"><img src="https://img.shields.io/docsrs/theresavdb-client?style=flat-square" alt="docs.rs"></a>
