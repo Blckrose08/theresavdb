@@ -102,7 +102,7 @@ impl Frame {
             return Err(ProtocolError::UnexpectedEof);
         }
 
-        if &bytes[0..4] != &PROTOCOL_MAGIC {
+        if bytes[0..4] != PROTOCOL_MAGIC {
             let mut magic = [0u8; 4];
             magic.copy_from_slice(&bytes[0..4]);
             return Err(ProtocolError::InvalidMagic(magic));

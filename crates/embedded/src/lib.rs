@@ -68,9 +68,19 @@ impl TheresavDB {
         })
     }
 
+    /// Run crash recovery on a relation's heap file using WAL.
+    pub fn recover_heap(
+        &self,
+        heap: &mut theresav_storage::HeapFile,
+    ) -> Result<theresav_recovery::RecoveryStats, TheresavError> {
+        let wal_path = self.data_dir.join("theresav.wal");
+        theresav_recovery::RecoveryManager::recover_from_wal(&wal_path, heap)
+            .map_err(TheresavError::Wal)
+    }
+
     /// Execute a SQL query string (DDL, DML, TCL).
     pub fn execute(&self, sql: &str) -> Result<QueryResult, TheresavError> {
-        let stmt = Parser::parse_sql(sql).map_err(|e| TheresavError::Type(e))?;
+        let stmt = Parser::parse_sql(sql).map_err(TheresavError::Type)?;
         let bound = Binder::new(&self.catalog).bind_statement(stmt)?;
         let logical = Planner::create_logical_plan(bound);
         let physical = Optimizer::optimize(logical, &self.catalog);
@@ -96,7 +106,10 @@ impl TheresavDB {
     }
 
     /// Begin a new transaction with a specified isolation level.
-    pub fn begin_with_isolation(&self, isolation: IsolationLevel) -> Result<Transaction, TheresavError> {
+    pub fn begin_with_isolation(
+        &self,
+        isolation: IsolationLevel,
+    ) -> Result<Transaction, TheresavError> {
         let tx = self.tx_manager.begin(isolation)?;
         Ok(tx)
     }
@@ -114,7 +127,10 @@ impl TheresavDB {
     }
 
     /// Create full backup of the database to a target directory.
-    pub fn create_backup<P: AsRef<Path>>(&self, target_dir: P) -> Result<BackupManifest, TheresavError> {
+    pub fn create_backup<P: AsRef<Path>>(
+        &self,
+        target_dir: P,
+    ) -> Result<BackupManifest, TheresavError> {
         let manifest = BackupManager::create_backup(&self.data_dir, target_dir)?;
         Ok(manifest)
     }
@@ -164,7 +180,9 @@ mod tests {
             .unwrap();
 
         // DML: Query Rows
-        let res = db.query("SELECT id, title, price FROM products WHERE id = 101;").unwrap();
+        let res = db
+            .query("SELECT id, title, price FROM products WHERE id = 101;")
+            .unwrap();
         assert_eq!(res.rows.len(), 1);
         assert_eq!(res.rows[0][0], Value::BigInt(101));
         assert_eq!(res.rows[0][1], Value::Text("Mechanical Keyboard".into()));

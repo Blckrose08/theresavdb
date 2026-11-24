@@ -22,9 +22,11 @@ theresav_planner = { workspace = true }
 theresav_optimizer = { workspace = true }
 theresav_executor = { workspace = true }
 theresav_lock_manager = { workspace = true }
+theresav_mvcc = { workspace = true }
 theresav_transaction = { workspace = true }
-theresav_auth = { path = "../auth" }
-theresav_backup = { path = "../backup" }
+theresav_recovery = { workspace = true }
+theresav_auth = { workspace = true }
+theresav_backup = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

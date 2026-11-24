@@ -64,7 +64,8 @@ impl RecoveryManager {
 
         // 3. UNDO PHASE: Uncommitted transactions (loser transactions) are undone
         // In our slotted tuple architecture, aborted insertions leave dead slots.
-        heap.sync().map_err(|e| WalError::RecoveryFailed(e.to_string()))?;
+        heap.sync()
+            .map_err(|e| WalError::RecoveryFailed(e.to_string()))?;
 
         Ok(stats)
     }
@@ -87,13 +88,23 @@ mod tests {
         let t1 = TxId::new(10);
         let t2 = TxId::new(20);
 
-        let l1 = writer.append(Lsn::INVALID, t1, WalRecordType::Begin, vec![]).unwrap();
-        let l2 = writer.append(l1, t1, WalRecordType::Insert, b"Tx1 data".to_vec()).unwrap();
-        writer.append(l2, t1, WalRecordType::Commit, vec![]).unwrap();
+        let l1 = writer
+            .append(Lsn::INVALID, t1, WalRecordType::Begin, vec![])
+            .unwrap();
+        let l2 = writer
+            .append(l1, t1, WalRecordType::Insert, b"Tx1 data".to_vec())
+            .unwrap();
+        writer
+            .append(l2, t1, WalRecordType::Commit, vec![])
+            .unwrap();
 
         // Tx 2 begins and inserts but crashes before commit
-        let l3 = writer.append(Lsn::INVALID, t2, WalRecordType::Begin, vec![]).unwrap();
-        writer.append(l3, t2, WalRecordType::Insert, b"Tx2 uncommitted".to_vec()).unwrap();
+        let l3 = writer
+            .append(Lsn::INVALID, t2, WalRecordType::Begin, vec![])
+            .unwrap();
+        writer
+            .append(l3, t2, WalRecordType::Insert, b"Tx2 uncommitted".to_vec())
+            .unwrap();
         writer.flush().unwrap();
 
         // Run recovery

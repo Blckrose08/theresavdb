@@ -12,8 +12,8 @@ theresav_common = { workspace = true }
 theresav_error = { workspace = true }
 theresav_types = { workspace = true }
 theresav_protocol = { path = "../protocol" }
-theresav_embedded = { path = "../embedded" }
-theresav_auth = { path = "../auth" }
+theresav_embedded = { workspace = true }
+theresav_auth = { workspace = true }
 tokio = { workspace = true }
 bytes = { workspace = true }
 byteorder = { workspace = true }

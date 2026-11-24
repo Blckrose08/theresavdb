@@ -49,15 +49,24 @@ async fn test_tcp_server_end_to_end_query() {
 
     let n = stream.read(&mut buf).await.unwrap();
     let (complete_frame, _) = Frame::decode(&buf[..n]).unwrap();
-    assert_eq!(complete_frame.header.message_type, MessageType::CommandComplete);
+    assert_eq!(
+        complete_frame.header.message_type,
+        MessageType::CommandComplete
+    );
 
     // 3. Send INSERT query
-    let insert_frame = MessageCodec::encode_query(12, "INSERT INTO cars (id, brand) VALUES (1, 'Tesla'), (2, 'Porsche');");
+    let insert_frame = MessageCodec::encode_query(
+        12,
+        "INSERT INTO cars (id, brand) VALUES (1, 'Tesla'), (2, 'Porsche');",
+    );
     stream.write_all(&insert_frame.encode()).await.unwrap();
 
     let n = stream.read(&mut buf).await.unwrap();
     let (insert_complete, _) = Frame::decode(&buf[..n]).unwrap();
-    assert_eq!(insert_complete.header.message_type, MessageType::CommandComplete);
+    assert_eq!(
+        insert_complete.header.message_type,
+        MessageType::CommandComplete
+    );
 
     // 4. Send SELECT query
     let select_frame = MessageCodec::encode_query(13, "SELECT id, brand FROM cars WHERE id = 1;");

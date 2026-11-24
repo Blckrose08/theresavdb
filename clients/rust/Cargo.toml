@@ -1,0 +1,19 @@
+[package]
+name = "theresavdb-client"
+version = "0.1.0"
+edition = "2021"
+authors = ["TheresavDB Contributors"]
+license = "Apache-2.0"
+repository = "https://github.com/theresav/theresavdb"
+
+[dependencies]
+theresav_common = { path = "../../crates/common" }
+theresav_error = { path = "../../crates/error" }
+theresav_types = { path = "../../crates/types" }
+theresav_protocol = { path = "../../crates/protocol" }
+tokio = { version = "1", features = ["net", "io-util"] }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+theresav_server = { path = "../../crates/server" }

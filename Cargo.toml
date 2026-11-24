@@ -25,6 +25,8 @@ members = [
     "crates/protocol",
     "crates/server",
     "crates/cli",
+    "crates/benchmarks",
+    "clients/rust",
 ]
 
 [workspace.package]

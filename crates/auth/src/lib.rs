@@ -123,7 +123,10 @@ impl AuthManager {
         let mut users = self.users.write().unwrap();
         let lower = username.to_ascii_lowercase();
         if users.contains_key(&lower) {
-            return Err(AuthError::UserNotFound(format!("User '{}' already exists", username)));
+            return Err(AuthError::UserNotFound(format!(
+                "User '{}' already exists",
+                username
+            )));
         }
 
         let mut salt = [0u8; 16];
@@ -224,7 +227,8 @@ mod tests {
     #[test]
     fn test_auth_and_rbac() {
         let auth = AuthManager::new();
-        auth.create_user("alice", "alice_pass", vec![Role::Readonly]).unwrap();
+        auth.create_user("alice", "alice_pass", vec![Role::Readonly])
+            .unwrap();
 
         // Valid authentication
         let session = auth.authenticate("alice", "alice_pass").unwrap();

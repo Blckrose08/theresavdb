@@ -16,6 +16,6 @@ libc = { workspace = true }
 [dev-dependencies]
 tempfile = { workspace = true }
 theresav_types = { workspace = true }
-theresav_wal = { path = "../wal" }
-theresav_index = { path = "../index" }
-theresav_buffer_pool = { path = "../buffer-pool" }
+theresav_wal = { workspace = true }
+theresav_index = { workspace = true }
+theresav_buffer_pool = { workspace = true }

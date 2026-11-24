@@ -13,9 +13,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Check embedded mode
     if let Some(pos) = args.iter().position(|a| a == "--embedded") {
-        let dir = args.get(pos + 1).cloned().unwrap_or_else(|| "./data".to_string());
+        let dir = args
+            .get(pos + 1)
+            .cloned()
+            .unwrap_or_else(|| "./data".to_string());
         println!("Connecting to embedded TheresavDB at '{}'...", dir);
-        let db = TheresavDB::open(&PathBuf::from(dir))?;
+        let db = TheresavDB::open(PathBuf::from(dir))?;
 
         if let Some(cmd_pos) = args.iter().position(|a| a == "-c") {
             if let Some(sql) = args.get(cmd_pos + 1) {

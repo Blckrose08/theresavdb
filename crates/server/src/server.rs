@@ -4,9 +4,7 @@ use crate::config::ServerConfig;
 use std::sync::Arc;
 use theresav_embedded::TheresavDB;
 use theresav_error::TheresavError;
-use theresav_protocol::{
-    Frame, MessageCodec, MessageType,
-};
+use theresav_protocol::{Frame, MessageCodec, MessageType};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 
@@ -83,10 +81,8 @@ async fn handle_connection(
 
                         // Send DataRows
                         for row in result.rows {
-                            let data_row = MessageCodec::encode_data_row(
-                                frame.header.request_id,
-                                row,
-                            );
+                            let data_row =
+                                MessageCodec::encode_data_row(frame.header.request_id, row);
                             socket.write_all(&data_row.encode()).await?;
                         }
 

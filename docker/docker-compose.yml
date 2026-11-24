@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  theresavdb:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: theresavdb-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7432:7432"
+    volumes:
+      - theresav_data:/var/lib/theresav/data
+    healthcheck:
+      test: ["CMD", "theresav-cli", "--host", "127.0.0.1", "--port", "7432", "-c", "SELECT 1;"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  theresav_data:

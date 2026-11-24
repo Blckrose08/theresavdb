@@ -114,14 +114,22 @@ impl BackupManager {
             if path.is_dir() {
                 Self::copy_and_checksum_dir(&path, dst_root, src_root, manifest_files)?;
             } else if path.is_file() {
-                let rel = path.strip_prefix(src_root).unwrap().to_str().unwrap().to_string();
+                let rel = path
+                    .strip_prefix(src_root)
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
                 let dst_file = dst_root.join(&rel);
                 if let Some(parent) = dst_file.parent() {
                     fs::create_dir_all(parent).map_err(|e| StorageError::Io(e.to_string()))?;
                 }
                 fs::copy(&path, &dst_file).map_err(|e| StorageError::Io(e.to_string()))?;
 
-                let size = entry.metadata().map_err(|e| StorageError::Io(e.to_string()))?.len();
+                let size = entry
+                    .metadata()
+                    .map_err(|e| StorageError::Io(e.to_string()))?
+                    .len();
                 let checksum = Self::compute_file_checksum(&path)?;
 
                 manifest_files.push(FileEntry {
@@ -137,7 +145,8 @@ impl BackupManager {
     fn compute_file_checksum(path: &Path) -> Result<u32, StorageError> {
         let mut file = File::open(path).map_err(|e| StorageError::Io(e.to_string()))?;
         let mut buf = Vec::new();
-        file.read_to_end(&mut buf).map_err(|e| StorageError::Io(e.to_string()))?;
+        file.read_to_end(&mut buf)
+            .map_err(|e| StorageError::Io(e.to_string()))?;
         Ok(crc32c::crc32c(&buf))
     }
 }

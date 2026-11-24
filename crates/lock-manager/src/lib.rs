@@ -17,16 +17,16 @@ pub enum LockMode {
 impl LockMode {
     /// Lock compatibility matrix.
     pub fn is_compatible(&self, other: &LockMode) -> bool {
-        match (self, other) {
-            (LockMode::Shared, LockMode::Shared) => true,
-            (LockMode::Shared, LockMode::IntentShared) => true,
-            (LockMode::IntentShared, LockMode::Shared) => true,
-            (LockMode::IntentShared, LockMode::IntentShared) => true,
-            (LockMode::IntentShared, LockMode::IntentExclusive) => true,
-            (LockMode::IntentExclusive, LockMode::IntentShared) => true,
-            (LockMode::IntentExclusive, LockMode::IntentExclusive) => true,
-            _ => false,
-        }
+        matches!(
+            (self, other),
+            (LockMode::Shared, LockMode::Shared)
+                | (LockMode::Shared, LockMode::IntentShared)
+                | (LockMode::IntentShared, LockMode::Shared)
+                | (LockMode::IntentShared, LockMode::IntentShared)
+                | (LockMode::IntentShared, LockMode::IntentExclusive)
+                | (LockMode::IntentExclusive, LockMode::IntentShared)
+                | (LockMode::IntentExclusive, LockMode::IntentExclusive)
+        )
     }
 }
 
@@ -59,13 +59,20 @@ impl LockManager {
     }
 
     /// Acquire a lock on a table or row.
-    pub fn acquire(&self, tx_id: TxId, resource: ResourceId, mode: LockMode) -> Result<(), TransactionError> {
+    pub fn acquire(
+        &self,
+        tx_id: TxId,
+        resource: ResourceId,
+        mode: LockMode,
+    ) -> Result<(), TransactionError> {
         let mut locks = self.locks.write().unwrap();
         let current_locks = locks.entry(resource).or_default();
 
         // Check if transaction already holds this lock or compatible
         if let Some((_, current_mode)) = current_locks.iter().find(|(t, _)| *t == tx_id) {
-            if *current_mode == mode || (*current_mode == LockMode::Exclusive && mode == LockMode::Shared) {
+            if *current_mode == mode
+                || (*current_mode == LockMode::Exclusive && mode == LockMode::Shared)
+            {
                 return Ok(());
             }
         }

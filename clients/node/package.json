@@ -1,0 +1,14 @@
+{
+  "name": "@theresav/db",
+  "version": "0.1.0",
+  "description": "High-performance Node.js & Bun driver for TheresavDB over pure binary wire protocol",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": ["database", "theresavdb", "rdbms", "sql", "driver"],
+  "author": "TheresavDB Contributors",
+  "license": "Apache-2.0"
+}

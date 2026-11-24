@@ -7,6 +7,7 @@ use theresav_planner::LogicalPlan;
 pub struct Optimizer;
 
 impl Optimizer {
+    #[allow(clippy::only_used_in_recursion)]
     pub fn optimize(logical: LogicalPlan, catalog: &Catalog) -> PhysicalPlan {
         match logical {
             LogicalPlan::Scan { table_catalog } => PhysicalPlan::SeqScan { table_catalog },

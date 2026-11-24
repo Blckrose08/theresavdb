@@ -71,7 +71,9 @@ impl BoundExpr {
                     },
                 }
             }
-            Self::Binary { left, op, right, .. } => {
+            Self::Binary {
+                left, op, right, ..
+            } => {
                 let l = left.evaluate(row)?;
                 let r = right.evaluate(row)?;
                 if l.is_null() || r.is_null() {

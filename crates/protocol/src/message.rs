@@ -41,14 +41,15 @@ pub struct MessageCodec;
 
 impl MessageCodec {
     pub fn encode_query(request_id: u64, sql: &str) -> Frame {
-        let msg = QueryMessage { sql: sql.to_string() };
+        let msg = QueryMessage {
+            sql: sql.to_string(),
+        };
         let payload = serde_json::to_vec(&msg).unwrap();
         Frame::new(MessageType::Query, request_id, payload)
     }
 
     pub fn decode_query(frame: &Frame) -> Result<QueryMessage, ProtocolError> {
-        serde_json::from_slice(&frame.payload)
-            .map_err(|e| ProtocolError::Other(e.to_string()))
+        serde_json::from_slice(&frame.payload).map_err(|e| ProtocolError::Other(e.to_string()))
     }
 
     pub fn encode_row_desc(request_id: u64, columns: Vec<String>) -> Frame {

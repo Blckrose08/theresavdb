@@ -45,7 +45,10 @@ impl VisibilityEngine {
         }
 
         // If xmin is uncommitted or in active set of snapshot -> invisible
-        if xmin >= snapshot.xmax || snapshot.active_txids.contains(&xmin) || !committed_txids.contains(&xmin) {
+        if xmin >= snapshot.xmax
+            || snapshot.active_txids.contains(&xmin)
+            || !committed_txids.contains(&xmin)
+        {
             return false;
         }
 
@@ -61,7 +64,10 @@ impl VisibilityEngine {
         }
 
         // If xmax is still active or not yet committed -> deletion not yet visible
-        if xmax >= snapshot.xmax || snapshot.active_txids.contains(&xmax) || !committed_txids.contains(&xmax) {
+        if xmax >= snapshot.xmax
+            || snapshot.active_txids.contains(&xmax)
+            || !committed_txids.contains(&xmax)
+        {
             return true;
         }
 
@@ -87,14 +93,29 @@ mod tests {
 
         // Tuple inserted by Tx 1, never deleted
         let t1 = Tuple::new(TxId::new(1), TxId::INVALID, 0, 1, vec![], vec![]);
-        assert!(VisibilityEngine::is_visible(&t1, &snap, TxId::new(5), &committed));
+        assert!(VisibilityEngine::is_visible(
+            &t1,
+            &snap,
+            TxId::new(5),
+            &committed
+        ));
 
         // Tuple inserted by Tx 3 (active uncommitted)
         let t2 = Tuple::new(TxId::new(3), TxId::INVALID, 0, 1, vec![], vec![]);
-        assert!(!VisibilityEngine::is_visible(&t2, &snap, TxId::new(5), &committed));
+        assert!(!VisibilityEngine::is_visible(
+            &t2,
+            &snap,
+            TxId::new(5),
+            &committed
+        ));
 
         // Tuple inserted by Tx 1, deleted by Tx 2 (committed)
         let t3 = Tuple::new(TxId::new(1), TxId::new(2), 0, 1, vec![], vec![]);
-        assert!(!VisibilityEngine::is_visible(&t3, &snap, TxId::new(5), &committed));
+        assert!(!VisibilityEngine::is_visible(
+            &t3,
+            &snap,
+            TxId::new(5),
+            &committed
+        ));
     }
 }
