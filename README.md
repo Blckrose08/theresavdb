@@ -8,9 +8,9 @@
   <a href="https://pypi.org/project/theresavdb/"><img src="https://img.shields.io/pypi/v/theresavdb.svg?style=flat-square&color=blue" alt="PyPI version"></a>
   <a href="https://hub.docker.com/r/blckrose08/theresavdb"><img src="https://img.shields.io/badge/docker-blckrose08%2Ftheresavdb-blue.svg?style=flat-square&logo=docker" alt="Docker Hub"></a>
   <a href="https://docs.rs/theresavdb-client"><img src="https://img.shields.io/docsrs/theresavdb-client?style=flat-square" alt="docs.rs"></a>
-  <a href="https://github.com/theresav/theresavdb/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg?style=flat-square" alt="License"></a>
+  <a href="https://github.com/Blckrose08/theresavdb/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg?style=flat-square" alt="License"></a>
   <a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.80%2B-orange.svg?style=flat-square" alt="Rust 1.80+"></a>
-  <a href="https://github.com/theresav/theresavdb/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square" alt="Build Status"></a>
+  <a href="https://github.com/Blckrose08/theresavdb/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square" alt="Build Status"></a>
 </p>
 
 <h3 align="center">
