@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: theresavdb
-Version: 0.1.0
+Version: 0.1.1
 Summary: Pure Python client for TheresavDB relational database
 Author-email: TheresavDB Contributors <core@theresav.eu>
 Keywords: theresavdb,sql,database,rdbms
