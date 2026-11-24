@@ -1,0 +1,20 @@
+[package]
+name = "theresav_storage"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+theresav_page = { workspace = true }
+libc = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+theresav_types = { workspace = true }
+theresav_wal = { path = "../wal" }
+theresav_index = { path = "../index" }

@@ -117,6 +117,9 @@ pub enum StorageError {
 
     #[error("Database directory lock failure: {0}")]
     LockFailure(String),
+
+    #[error("Storage I/O error: {0}")]
+    Io(String),
 }
 
 /// Errors in transaction lifecycle, concurrency control, or isolation.

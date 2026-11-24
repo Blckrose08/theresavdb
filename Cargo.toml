@@ -5,6 +5,10 @@ members = [
     "crates/error",
     "crates/types",
     "crates/page",
+    "crates/storage",
+    "crates/buffer-pool",
+    "crates/wal",
+    "crates/index",
 ]
 
 [workspace.package]
@@ -25,8 +29,12 @@ chrono = { version = "0.4", features = ["serde"] }
 rust_decimal = { version = "1.36", features = ["serde"] }
 proptest = "1.6"
 byteorder = "1.5"
+tempfile = "3.27"
+libc = "0.2"
 
 # Internal crates
 theresav_common = { path = "crates/common" }
 theresav_error = { path = "crates/error" }
 theresav_types = { path = "crates/types" }
+theresav_page = { path = "crates/page" }
+theresav_storage = { path = "crates/storage" }

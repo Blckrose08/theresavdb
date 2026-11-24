@@ -1,0 +1,17 @@
+[package]
+name = "theresav_buffer_pool"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+theresav_page = { workspace = true }
+theresav_storage = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

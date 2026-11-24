@@ -1,0 +1,17 @@
+[package]
+name = "theresav_wal"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+byteorder = { workspace = true }
+crc32c = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
