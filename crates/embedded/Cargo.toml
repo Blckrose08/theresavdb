@@ -1,0 +1,30 @@
+[package]
+name = "theresav_embedded"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+theresav_types = { workspace = true }
+theresav_page = { workspace = true }
+theresav_storage = { workspace = true }
+theresav_wal = { workspace = true }
+theresav_index = { workspace = true }
+theresav_catalog = { workspace = true }
+theresav_parser = { workspace = true }
+theresav_binder = { workspace = true }
+theresav_planner = { workspace = true }
+theresav_optimizer = { workspace = true }
+theresav_executor = { workspace = true }
+theresav_lock_manager = { workspace = true }
+theresav_transaction = { workspace = true }
+theresav_auth = { path = "../auth" }
+theresav_backup = { path = "../backup" }
+
+[dev-dependencies]
+tempfile = { workspace = true }

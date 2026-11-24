@@ -1,0 +1,18 @@
+[package]
+name = "theresav_backup"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+crc32c = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

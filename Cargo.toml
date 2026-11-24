@@ -19,6 +19,9 @@ members = [
     "crates/mvcc",
     "crates/transaction",
     "crates/recovery",
+    "crates/auth",
+    "crates/backup",
+    "crates/embedded",
 ]
 
 [workspace.package]
@@ -48,6 +51,7 @@ theresav_error = { path = "crates/error" }
 theresav_types = { path = "crates/types" }
 theresav_page = { path = "crates/page" }
 theresav_storage = { path = "crates/storage" }
+theresav_buffer_pool = { path = "crates/buffer-pool" }
 theresav_index = { path = "crates/index" }
 theresav_catalog = { path = "crates/catalog" }
 theresav_parser = { path = "crates/parser" }
@@ -60,3 +64,6 @@ theresav_mvcc = { path = "crates/mvcc" }
 theresav_transaction = { path = "crates/transaction" }
 theresav_recovery = { path = "crates/recovery" }
 theresav_wal = { path = "crates/wal" }
+theresav_auth = { path = "crates/auth" }
+theresav_backup = { path = "crates/backup" }
+theresav_embedded = { path = "crates/embedded" }
