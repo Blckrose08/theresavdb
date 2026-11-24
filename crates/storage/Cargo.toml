@@ -18,3 +18,4 @@ tempfile = { workspace = true }
 theresav_types = { workspace = true }
 theresav_wal = { path = "../wal" }
 theresav_index = { path = "../index" }
+theresav_buffer_pool = { path = "../buffer-pool" }

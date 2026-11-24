@@ -1,7 +1,9 @@
 use tempfile::tempdir;
+use theresav_buffer_pool::BufferPoolManager;
 use theresav_common::{Lsn, PageId, TxId};
 use theresav_index::{BTreeIndex, IndexKey};
-use theresav_storage::{DatabaseProcessLock, HeapFile};
+use theresav_page::{PageType, Tuple};
+use theresav_storage::{DatabaseProcessLock, DiskManager, HeapFile};
 use theresav_types::Value;
 use theresav_wal::{WalReader, WalRecordType, WalWriter};
 
@@ -10,75 +12,104 @@ fn test_end_to_end_storage_wal_and_index_pipeline() {
     let dir = tempdir().unwrap();
     let db_path = dir.path();
 
-    // 1. Acquire exclusive directory process lock
-    let _lock = DatabaseProcessLock::acquire(db_path).expect("Directory lock must succeed");
+    // 1. Acquire exclusive database directory lock
+    let lock = DatabaseProcessLock::acquire(db_path).expect("Must acquire directory lock");
+    assert!(lock.lock_path().exists());
 
-    // 2. Open Heap table file
-    let table_path = db_path.join("users.thdb");
-    let mut heap = HeapFile::open(&table_path).expect("Heap file creation must succeed");
-
-    // 3. Open Write-Ahead Log
+    // 2. Setup WAL and write transaction records
     let wal_path = db_path.join("theresav.wal");
-    let wal_writer = WalWriter::open(&wal_path).expect("WAL creation must succeed");
+    let wal = WalWriter::open(&wal_path).expect("WAL file creation must succeed");
 
-    // 4. Initialize B-Tree unique index on user_id (column 0)
-    let mut user_id_index = BTreeIndex::new(PageId::new(0), true);
-
-    let tx_id = TxId::new(101);
-    let lsn_begin = wal_writer
+    let tx_id = TxId::new(42);
+    let lsn_begin = wal
         .append(Lsn::INVALID, tx_id, WalRecordType::Begin, vec![])
         .unwrap();
 
-    // 5. Insert records, log to WAL, and populate index
-    let user_ids = vec![1001, 1002, 1003, 1004, 1005];
+    // 3. Setup Heap table
+    let table_path = db_path.join("users.thdb");
+    let mut heap = HeapFile::open(&table_path).expect("Table heap must open cleanly");
+
+    // 4. Setup B-Tree Unique Index on ID column
+    let mut index = BTreeIndex::new(PageId::new(0), true);
+
+    // 5. Insert tuples into heap, record in WAL, and index
+    let mut inserted_tids = Vec::new();
     let mut prev_lsn = lsn_begin;
 
-    for &uid in &user_ids {
-        let payload = format!("User Record #{}", uid).into_bytes();
-        let tid = heap
-            .insert_tuple(&payload)
-            .expect("Tuple insert must succeed");
+    for id in 1..=10 {
+        let tuple = Tuple::new(
+            tx_id,
+            TxId::INVALID,
+            0,
+            1,
+            vec![],
+            format!("User Record Name_{}", id).into_bytes(),
+        );
+        let serialized_tuple = tuple.serialize();
 
-        // Write WAL insert record
-        prev_lsn = wal_writer
-            .append(prev_lsn, tx_id, WalRecordType::Insert, payload)
-            .expect("WAL append must succeed");
+        // Write to WAL before heap (Write-Ahead Logging rule)
+        let lsn_insert = wal
+            .append(
+                prev_lsn,
+                tx_id,
+                WalRecordType::Insert,
+                serialized_tuple.clone(),
+            )
+            .unwrap();
+        prev_lsn = lsn_insert;
 
-        // Index tuple
-        let key = IndexKey::single(Value::BigInt(uid));
-        user_id_index
-            .insert(key, tid)
-            .expect("Unique index insert must succeed");
+        // Insert into heap
+        let tid = heap.insert_tuple(&serialized_tuple).unwrap();
+
+        // Insert into index
+        let key = IndexKey::single(Value::Integer(id));
+        index.insert(key, tid).unwrap();
+
+        inserted_tids.push((id, tid, tuple));
     }
 
     // 6. Commit transaction in WAL
-    let lsn_commit = wal_writer
+    let lsn_commit = wal
         .append(prev_lsn, tx_id, WalRecordType::Commit, vec![])
-        .expect("WAL commit must succeed");
+        .unwrap();
+    assert!(wal.flushed_lsn() >= lsn_commit);
 
-    assert!(wal_writer.flushed_lsn() >= lsn_commit);
+    // 7. Verify index searches and range scans
+    let search_key = IndexKey::single(Value::Integer(5));
+    let found_tids = index
+        .search(&search_key)
+        .expect("Key 5 must exist in index");
+    assert_eq!(found_tids.len(), 1);
+    let raw = heap.get_tuple(found_tids[0]).unwrap();
+    let decoded = Tuple::deserialize(&raw).unwrap();
+    assert_eq!(decoded.xmin, tx_id);
+    assert_eq!(decoded.payload, b"User Record Name_5");
 
-    // 7. Verify index lookup retrieves exact tuple from heap
-    let target_key = IndexKey::single(Value::BigInt(1003));
-    let matching_tids = user_id_index
-        .search(&target_key)
-        .expect("Search must find key");
-    assert_eq!(matching_tids.len(), 1);
+    // Range scan for IDs 3..=7
+    let low = IndexKey::single(Value::Integer(3));
+    let high = IndexKey::single(Value::Integer(7));
+    let range_results = index.scan_range(Some(&low), Some(&high));
+    assert_eq!(range_results.len(), 5);
 
-    let retrieved_tuple = heap.get_tuple(matching_tids[0]).expect("Tuple must exist");
-    assert_eq!(retrieved_tuple, b"User Record #1003");
+    // 8. Test Buffer Pool Manager interaction on raw data file
+    let data_file = DiskManager::open_file(&table_path).unwrap();
+    let bpm = BufferPoolManager::new(4, data_file);
 
-    // 8. Test crash recovery: verify WAL sequentially replays all operations
-    let mut wal_reader = WalReader::open(&wal_path).expect("WAL reader must open");
-    let mut replayed_records = Vec::new();
-    while let Some(record) = wal_reader.next_record().expect("Record must decode") {
-        replayed_records.push(record);
+    let (new_page_id, frame) = bpm.new_page(PageType::SlottedData).unwrap();
+    {
+        let mut guard = frame.write().unwrap();
+        guard.page.insert_tuple(b"BufferPoolCachedPayload").unwrap();
     }
+    bpm.unpin_page(new_page_id, true).unwrap();
+    bpm.flush_all().unwrap();
 
-    assert_eq!(replayed_records.len(), 1 + user_ids.len() + 1); // Begin + 5 inserts + Commit
-    assert_eq!(replayed_records[0].record_type, WalRecordType::Begin);
-    assert_eq!(
-        replayed_records.last().unwrap().record_type,
-        WalRecordType::Commit
-    );
+    // 9. Simulate restart and crash-recovery audit: Read WAL from disk
+    let mut reader = WalReader::open(&wal_path).unwrap();
+    let mut record_count = 0;
+    while let Some(record) = reader.next_record().unwrap() {
+        record_count += 1;
+        assert_eq!(record.tx_id, tx_id);
+    }
+    // 1 Begin + 10 Inserts + 1 Commit = 12 records
+    assert_eq!(record_count, 12);
 }
