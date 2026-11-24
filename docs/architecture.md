@@ -97,3 +97,10 @@ Key Architectural Tenets:
 - **Binder**: Validates table/column existence against Catalog, assigns types, and computes expression signatures.
 - **Planner & Optimizer**: Translates AST to Logical Plan, applies rewrite rules (projection pushdown, predicate pushdown), and emits Physical Plan.
 - **Executor**: Executes physical iterator trees producing `Tuple` batches.
+
+---
+
+## 4. Architectural & Performance Benchmark Comparison
+
+For a detailed side-by-side engineering and benchmark comparison of TheresavDB against PostgreSQL, MySQL (InnoDB), and MariaDB, refer to [benchmarks-comparison.md](file:///home/ubuntu/database/docs/benchmarks-comparison.md).
+
