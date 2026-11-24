@@ -1,5 +1,3 @@
-//! Query execution engine executing physical operator trees for TheresavDB.
-
 use std::collections::HashMap;
 use std::sync::RwLock;
 use theresav_catalog::{Catalog, ColumnCatalog};
@@ -9,7 +7,6 @@ use theresav_optimizer::PhysicalPlan;
 use theresav_parser::ast::OrderDirection;
 use theresav_types::Value;
 
-/// Query execution result.
 #[derive(Debug, Clone, PartialEq)]
 pub struct QueryResult {
     pub columns: Vec<String>,
@@ -44,7 +41,6 @@ impl QueryResult {
     }
 }
 
-/// Execution runtime context holding in-memory tables and indexes.
 pub struct ExecutionContext<'a> {
     pub catalog: &'a Catalog,
     pub tables: &'a RwLock<HashMap<String, Vec<Vec<Value>>>>,
@@ -171,7 +167,6 @@ impl Executor {
                     .evaluate(&[])
                     .map_err(|e| StorageError::CorruptedFile(e.to_string()))?;
 
-                // Search matching rows
                 let filtered: Vec<Vec<Value>> = stored_rows
                     .into_iter()
                     .filter(|row| row.iter().any(|v| v == &target))
@@ -343,7 +338,6 @@ mod tests {
             indexes: &indexes,
         };
 
-        // 1. CREATE TABLE
         let sql_create = "CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, active BOOLEAN);";
         let stmt = Parser::parse_sql(sql_create).unwrap();
         let bound = Binder::new(&catalog).bind_statement(stmt).unwrap();
@@ -352,7 +346,6 @@ mod tests {
         let res = Executor::execute(physical, &ctx).unwrap();
         assert_eq!(res.rows_affected, 0);
 
-        // 2. INSERT INTO
         let sql_insert =
             "INSERT INTO users (id, name, active) VALUES (1, 'Alice', true), (2, 'Bob', false);";
         let stmt = Parser::parse_sql(sql_insert).unwrap();
@@ -362,7 +355,6 @@ mod tests {
         let res = Executor::execute(physical, &ctx).unwrap();
         assert_eq!(res.rows_affected, 2);
 
-        // 3. SELECT WHERE
         let sql_select = "SELECT id, name FROM users WHERE id = 1;";
         let stmt = Parser::parse_sql(sql_select).unwrap();
         let bound = Binder::new(&catalog).bind_statement(stmt).unwrap();

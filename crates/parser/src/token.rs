@@ -1,10 +1,7 @@
-//! SQL Lexer and Tokenizer for TheresavSQL dialect.
-
 use theresav_error::TypeError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
-    // Keywords
     Select,
     From,
     Where,
@@ -40,7 +37,6 @@ pub enum Token {
     Commit,
     Rollback,
 
-    // Types
     TypeBoolean,
     TypeSmallInt,
     TypeInteger,
@@ -57,26 +53,24 @@ pub enum Token {
     TypeJson,
     TypeJsonb,
 
-    // Literals & Identifiers
     Ident(String),
     StringLiteral(String),
     NumberLiteral(String),
 
-    // Symbols & Operators
-    Eq,        // =
-    NotEq,     // != or <>
-    Lt,        // <
-    Lte,       // <=
-    Gt,        // >
-    Gte,       // >=
-    Plus,      // +
-    Minus,     // -
-    Star,      // *
-    Slash,     // /
-    Comma,     // ,
-    Semicolon, // ;
-    LParen,    // (
-    RParen,    // )
+    Eq,
+    NotEq,
+    Lt,
+    Lte,
+    Gt,
+    Gte,
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Comma,
+    Semicolon,
+    LParen,
+    RParen,
 
     Eof,
 }
@@ -152,7 +146,6 @@ impl<'a> Lexer<'a> {
                 }
             }
             '\'' => {
-                // String literal
                 let start = idx + 1;
                 let mut end = start;
                 let mut closed = false;
@@ -171,7 +164,6 @@ impl<'a> Lexer<'a> {
                 )))
             }
             c if c.is_ascii_digit() => {
-                // Number literal
                 let start = idx;
                 let mut end = idx + c.len_utf8();
                 while let Some(&(c_idx, next_ch)) = self.chars.peek() {
@@ -187,7 +179,6 @@ impl<'a> Lexer<'a> {
                 )))
             }
             c if c.is_alphabetic() || c == '_' => {
-                // Identifier or keyword
                 let start = idx;
                 let mut end = idx + c.len_utf8();
                 while let Some(&(c_idx, next_ch)) = self.chars.peek() {
@@ -256,7 +247,6 @@ fn keyword_or_ident(s: &str) -> Token {
         "COMMIT" => Token::Commit,
         "ROLLBACK" => Token::Rollback,
 
-        // Types
         "BOOLEAN" | "BOOL" => Token::TypeBoolean,
         "SMALLINT" | "INT2" => Token::TypeSmallInt,
         "INTEGER" | "INT" | "INT4" => Token::TypeInteger,

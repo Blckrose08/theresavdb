@@ -24,7 +24,6 @@ def encode_frame(message_type: int, request_id: int, payload: bytes) -> bytes:
         request_id,
         len(payload),
     )
-    # Correct alignment packing: magic 4B, version 2B, msg_type 2B, payload_len 4B, request_id 8B
     packed_header = struct.pack(
         "<4sHHIQ",
         PROTOCOL_MAGIC,

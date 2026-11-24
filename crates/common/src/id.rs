@@ -1,9 +1,6 @@
-//! Strongly typed 64-bit and 16-bit database identifiers.
-
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// 64-bit physical or logical page identifier.
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
@@ -39,7 +36,6 @@ impl fmt::Display for PageId {
     }
 }
 
-/// 64-bit transaction identifier (TxId).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
@@ -77,7 +73,6 @@ impl fmt::Display for TxId {
     }
 }
 
-/// 64-bit Log Sequence Number (LSN) for Write-Ahead Logging (WAL).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
@@ -108,7 +103,6 @@ impl fmt::Display for Lsn {
     }
 }
 
-/// 64-bit Object Identifier (OID) for catalog entities (tables, schemas, columns, indexes).
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
@@ -139,7 +133,6 @@ impl fmt::Display for Oid {
     }
 }
 
-/// 16-bit slot directory index within a page.
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]
@@ -175,8 +168,6 @@ impl fmt::Display for SlotId {
     }
 }
 
-/// 10-byte stable Tuple Identifier / Item Pointer (`Tid`).
-/// Composed of 8-byte PageId and 2-byte SlotId.
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize, Default,
 )]

@@ -1,8 +1,5 @@
-//! Clock replacement policy for buffer pool page eviction.
-
 use std::collections::HashSet;
 
-/// Clock-based eviction replacer.
 #[derive(Debug)]
 pub struct ClockReplacer {
     clock_hand: usize,
@@ -23,7 +20,6 @@ impl ClockReplacer {
         }
     }
 
-    /// Mark a frame as evictable or not (pinned frames are not evictable).
     pub fn set_evictable(&mut self, frame_id: usize, is_evictable: bool) {
         if frame_id >= self.capacity {
             return;
@@ -40,14 +36,12 @@ impl ClockReplacer {
         }
     }
 
-    /// Record an access to a frame (sets the reference bit).
     pub fn record_access(&mut self, frame_id: usize) {
         if frame_id < self.capacity {
             self.ref_bits[frame_id] = true;
         }
     }
 
-    /// Find a victim frame to evict.
     pub fn victim(&mut self) -> Option<usize> {
         if self.evictable_set.is_empty() {
             return None;
@@ -72,7 +66,6 @@ impl ClockReplacer {
             scanned += 1;
         }
 
-        // Fallback: take any evictable frame
         if let Some(&fid) = self.evictable_set.iter().next() {
             self.evictable[fid] = false;
             self.evictable_set.remove(&fid);
@@ -82,7 +75,6 @@ impl ClockReplacer {
         }
     }
 
-    /// Number of frames currently evictable.
     pub fn size(&self) -> usize {
         self.evictable_set.len()
     }

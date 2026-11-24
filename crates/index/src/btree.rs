@@ -1,16 +1,12 @@
-//! In-memory and page-backed B-Tree index supporting unique and composite indexes.
-
 use crate::key::IndexKey;
 use std::collections::BTreeMap;
 use theresav_common::{PageId, TupleId};
 use theresav_error::StorageError;
 
-/// B-Tree index structure for relational tables.
 #[derive(Debug)]
 pub struct BTreeIndex {
     root_page_id: PageId,
     is_unique: bool,
-    // In-memory ordered backing tree coordinating with disk pages
     entries: BTreeMap<IndexKey, Vec<TupleId>>,
 }
 
@@ -31,7 +27,6 @@ impl BTreeIndex {
         self.is_unique
     }
 
-    /// Insert key -> TupleId mapping. Enforces uniqueness if `is_unique` is true.
     pub fn insert(&mut self, key: IndexKey, tid: TupleId) -> Result<(), StorageError> {
         if self.is_unique {
             if let Some(existing) = self.entries.get(&key) {
@@ -48,12 +43,10 @@ impl BTreeIndex {
         Ok(())
     }
 
-    /// Search exact key match.
     pub fn search(&self, key: &IndexKey) -> Option<&[TupleId]> {
         self.entries.get(key).map(|v| v.as_slice())
     }
 
-    /// Delete tuple from index.
     pub fn delete(&mut self, key: &IndexKey, tid: TupleId) {
         if let Some(list) = self.entries.get_mut(key) {
             list.retain(|&x| x != tid);
@@ -63,7 +56,6 @@ impl BTreeIndex {
         }
     }
 
-    /// Range scan from low bound (inclusive) to high bound (inclusive).
     pub fn scan_range(
         &self,
         low: Option<&IndexKey>,
@@ -112,14 +104,11 @@ mod tests {
         idx.insert(k2.clone(), tid2).unwrap();
         idx.insert(k3.clone(), tid3).unwrap();
 
-        // Duplicate insert in unique index must fail
         assert!(idx.insert(k2.clone(), tid1).is_err());
 
-        // Exact search
         let found = idx.search(&k2).unwrap();
         assert_eq!(found, &[tid2]);
 
-        // Range scan between 15 and 35
         let low = IndexKey::single(Value::Integer(15));
         let high = IndexKey::single(Value::Integer(35));
         let range = idx.scan_range(Some(&low), Some(&high));

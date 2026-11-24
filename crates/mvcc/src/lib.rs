@@ -1,17 +1,11 @@
-//! Multi-Version Concurrency Control (MVCC) snapshot and visibility engine.
-
 use std::collections::HashSet;
 use theresav_common::TxId;
 use theresav_page::Tuple;
 
-/// Transaction snapshot representing the state of active transactions at a point in time.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Snapshot {
-    /// Oldest active transaction ID when snapshot was created.
     pub xmin: TxId,
-    /// Highest transaction ID assigned + 1 when snapshot was created.
     pub xmax: TxId,
-    /// Set of active (uncommitted) transactions at the time of snapshot creation.
     pub active_txids: HashSet<TxId>,
 }
 
@@ -25,7 +19,6 @@ impl Snapshot {
     }
 }
 
-/// Evaluates MVCC visibility of a tuple relative to a transaction snapshot.
 pub struct VisibilityEngine;
 
 impl VisibilityEngine {
@@ -38,13 +31,10 @@ impl VisibilityEngine {
         let xmin = tuple.xmin;
         let xmax = tuple.xmax;
 
-        // 1. Check insertion visibility (xmin)
         if xmin == current_tx {
-            // Created by self: visible unless deleted by self
             return xmax != current_tx;
         }
 
-        // If xmin is uncommitted or in active set of snapshot -> invisible
         if xmin >= snapshot.xmax
             || snapshot.active_txids.contains(&xmin)
             || !committed_txids.contains(&xmin)
@@ -52,18 +42,14 @@ impl VisibilityEngine {
             return false;
         }
 
-        // 2. Check deletion visibility (xmax)
         if xmax == TxId::INVALID || xmax.0 == 0 {
-            // Not deleted -> visible
             return true;
         }
 
         if xmax == current_tx {
-            // Deleted by self -> invisible
             return false;
         }
 
-        // If xmax is still active or not yet committed -> deletion not yet visible
         if xmax >= snapshot.xmax
             || snapshot.active_txids.contains(&xmax)
             || !committed_txids.contains(&xmax)
@@ -71,7 +57,6 @@ impl VisibilityEngine {
             return true;
         }
 
-        // xmax is committed and visible -> invisible (deleted)
         false
     }
 }
@@ -91,7 +76,6 @@ mod tests {
 
         let snap = Snapshot::new(TxId::new(2), TxId::new(4), active);
 
-        // Tuple inserted by Tx 1, never deleted
         let t1 = Tuple::new(TxId::new(1), TxId::INVALID, 0, 1, vec![], vec![]);
         assert!(VisibilityEngine::is_visible(
             &t1,
@@ -100,7 +84,6 @@ mod tests {
             &committed
         ));
 
-        // Tuple inserted by Tx 3 (active uncommitted)
         let t2 = Tuple::new(TxId::new(3), TxId::INVALID, 0, 1, vec![], vec![]);
         assert!(!VisibilityEngine::is_visible(
             &t2,
@@ -109,7 +92,6 @@ mod tests {
             &committed
         ));
 
-        // Tuple inserted by Tx 1, deleted by Tx 2 (committed)
         let t3 = Tuple::new(TxId::new(1), TxId::new(2), 0, 1, vec![], vec![]);
         assert!(!VisibilityEngine::is_visible(
             &t3,

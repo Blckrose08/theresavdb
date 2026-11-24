@@ -1,5 +1,3 @@
-//! Backup and Restore engine for TheresavDB with manifest and checksum integrity verification.
-
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::Read;
@@ -23,7 +21,6 @@ pub struct BackupManifest {
 pub struct BackupManager;
 
 impl BackupManager {
-    /// Create a full backup from `db_path` into `target_dir`.
     pub fn create_backup<P: AsRef<Path>, Q: AsRef<Path>>(
         db_path: P,
         target_dir: Q,
@@ -34,7 +31,6 @@ impl BackupManager {
 
         let mut manifest_files = Vec::new();
 
-        // Recursively copy and calculate checksums
         Self::copy_and_checksum_dir(src, dst, src, &mut manifest_files)?;
 
         let manifest = BackupManifest {
@@ -51,7 +47,6 @@ impl BackupManager {
         Ok(manifest)
     }
 
-    /// Restore a backup from `backup_dir` into `restore_path`, validating all file checksums.
     pub fn restore_backup<P: AsRef<Path>, Q: AsRef<Path>>(
         backup_dir: P,
         restore_path: Q,
@@ -65,7 +60,6 @@ impl BackupManager {
         let manifest: BackupManifest = serde_json::from_str(&manifest_data)
             .map_err(|e| StorageError::CorruptedFile(format!("Invalid manifest: {}", e)))?;
 
-        // Verify checksums of all backup files before restoring
         for entry in &manifest.files {
             let file_in_backup = bkp.join(&entry.relative_path);
             let calculated_chk = Self::compute_file_checksum(&file_in_backup)?;
@@ -77,7 +71,6 @@ impl BackupManager {
             }
         }
 
-        // Restore files to destination
         fs::create_dir_all(target).map_err(|e| StorageError::Io(e.to_string()))?;
         for entry in &manifest.files {
             let file_in_backup = bkp.join(&entry.relative_path);
@@ -106,7 +99,6 @@ impl BackupManager {
             let path = entry.path();
             let file_name = path.file_name().unwrap().to_string_lossy();
 
-            // Skip lock files
             if file_name.ends_with(".lock") {
                 continue;
             }
@@ -166,11 +158,9 @@ mod tests {
         fs::create_dir_all(&db_path).unwrap();
         fs::write(db_path.join("table1.thdb"), b"Data for table 1").unwrap();
 
-        // Create backup
         let manifest = BackupManager::create_backup(&db_path, &backup_path).unwrap();
         assert_eq!(manifest.files.len(), 1);
 
-        // Restore backup
         BackupManager::restore_backup(&backup_path, &restore_path).unwrap();
         let restored_content = fs::read(restore_path.join("table1.thdb")).unwrap();
         assert_eq!(restored_content, b"Data for table 1");

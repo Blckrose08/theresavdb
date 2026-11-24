@@ -1,5 +1,3 @@
-//! Logical Planner transforming Bound Statements into Logical Plans.
-
 use crate::plan::LogicalPlan;
 use theresav_binder::BoundStatement;
 
@@ -98,7 +96,6 @@ impl Planner {
                 where_clause,
             },
             BoundStatement::Begin | BoundStatement::Commit | BoundStatement::Rollback => {
-                // Handled directly at transaction level
                 panic!("Transaction commands do not produce a logical query plan")
             }
         }

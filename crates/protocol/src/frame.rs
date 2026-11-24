@@ -1,5 +1,3 @@
-//! Binary wire protocol framing for TheresavDB.
-
 use byteorder::{ByteOrder, LittleEndian};
 use theresav_common::{DEFAULT_MAX_FRAME_SIZE, PROTOCOL_MAGIC, PROTOCOL_VERSION_V1};
 use theresav_error::ProtocolError;
@@ -52,12 +50,6 @@ impl MessageType {
     }
 }
 
-/// 20-byte Frame Header:
-/// - magic: 4 bytes (b"THRP")
-/// - version: 2 bytes (1)
-/// - message_type: 2 bytes
-/// - payload_length: 4 bytes
-/// - request_id: 8 bytes
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FrameHeader {
     pub message_type: MessageType,

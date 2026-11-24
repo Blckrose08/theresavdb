@@ -1,5 +1,3 @@
-//! Rule-Based Query Optimizer.
-
 use crate::plan::PhysicalPlan;
 use theresav_catalog::Catalog;
 use theresav_planner::LogicalPlan;

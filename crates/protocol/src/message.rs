@@ -1,5 +1,3 @@
-//! Structured message encoding and decoding on top of binary frames.
-
 use crate::frame::{Frame, MessageType};
 use serde::{Deserialize, Serialize};
 use theresav_error::ProtocolError;

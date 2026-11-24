@@ -1,10 +1,7 @@
-//! Binary Page Header (64 bytes exact) for TheresavDB.
-
 use byteorder::{ByteOrder, LittleEndian};
 use theresav_common::{Lsn, PageId, FORMAT_VERSION_V1, PAGE_HEADER_SIZE, PAGE_MAGIC};
 use theresav_error::PageError;
 
-/// Type of database page.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u16)]
 pub enum PageType {
@@ -35,7 +32,6 @@ impl PageType {
     }
 }
 
-/// Exact 64-byte header representing physical page metadata.
 #[repr(C)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PageHeader {
@@ -53,11 +49,9 @@ pub struct PageHeader {
     pub reserved: [u8; 26],
 }
 
-// Ensure at compile time that the header struct is exactly 64 bytes.
 const _: () = assert!(std::mem::size_of::<PageHeader>() == PAGE_HEADER_SIZE);
 
 impl PageHeader {
-    /// Create a new default page header for a newly allocated page.
     pub fn new(page_id: PageId, page_type: PageType, page_size: u16) -> Self {
         Self {
             magic: PAGE_MAGIC,
@@ -75,7 +69,6 @@ impl PageHeader {
         }
     }
 
-    /// Explicitly encode the 64-byte header into the destination slice.
     pub fn encode(&self, out: &mut [u8]) {
         assert!(out.len() >= PAGE_HEADER_SIZE);
         out[0..4].copy_from_slice(&self.magic);
@@ -92,7 +85,6 @@ impl PageHeader {
         out[38..64].copy_from_slice(&self.reserved);
     }
 
-    /// Explicitly decode the 64-byte header from disk bytes with strict bounds checking.
     pub fn decode(bytes: &[u8]) -> Result<Self, PageError> {
         if bytes.len() < PAGE_HEADER_SIZE {
             return Err(PageError::Corrupted(

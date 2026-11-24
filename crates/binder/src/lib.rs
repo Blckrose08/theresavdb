@@ -1,5 +1,3 @@
-//! Semantic analyzer and binder for TheresavDB.
-
 pub mod binder;
 pub mod expr;
 pub mod statement;

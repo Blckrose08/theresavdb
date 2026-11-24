@@ -1,5 +1,3 @@
-//! Authentication and Role-Based Access Control (RBAC) engine for TheresavDB.
-
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::RwLock;
@@ -108,12 +106,10 @@ impl AuthManager {
         let mgr = Self {
             users: RwLock::new(HashMap::new()),
         };
-        // Bootstrap superuser 'admin'
         let _ = mgr.create_user("admin", "admin_secret", vec![Role::Superuser]);
         mgr
     }
 
-    /// Register a user with salted SHA-256 password hash.
     pub fn create_user(
         &self,
         username: &str,
@@ -149,7 +145,6 @@ impl AuthManager {
         Ok(())
     }
 
-    /// Authenticate credentials using constant-time comparison.
     pub fn authenticate(&self, username: &str, password: &str) -> Result<UserSession, AuthError> {
         let users = self.users.read().unwrap();
         let user = users
@@ -175,7 +170,6 @@ impl AuthManager {
         })
     }
 
-    /// Authorize permission for an authenticated session.
     pub fn check_permission(
         &self,
         session: &UserSession,
@@ -197,7 +191,6 @@ fn compute_hash(password: &[u8], salt: &[u8; 16]) -> [u8; 32] {
     data.extend_from_slice(salt);
     data.extend_from_slice(password);
 
-    // 256-bit hash using CRC32C rounds + mixing
     let mut hash = [0u8; 32];
     for (i, chunk) in data.chunks(4).enumerate() {
         let c = crc32c::crc32c(chunk);
@@ -211,7 +204,6 @@ fn compute_hash(password: &[u8], salt: &[u8; 16]) -> [u8; 32] {
     hash
 }
 
-/// Constant-time comparison to protect against timing attacks.
 fn constant_time_eq(a: &[u8; 32], b: &[u8; 32]) -> bool {
     let mut diff = 0u8;
     for i in 0..32 {
@@ -230,12 +222,10 @@ mod tests {
         auth.create_user("alice", "alice_pass", vec![Role::Readonly])
             .unwrap();
 
-        // Valid authentication
         let session = auth.authenticate("alice", "alice_pass").unwrap();
         assert!(auth.check_permission(&session, Permission::Select).is_ok());
         assert!(auth.check_permission(&session, Permission::Drop).is_err());
 
-        // Invalid password
         assert!(auth.authenticate("alice", "wrong_pass").is_err());
     }
 }

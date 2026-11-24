@@ -1,10 +1,7 @@
-//! Buffer frame representing an in-memory page cache slot.
-
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use theresav_common::PageId;
 use theresav_page::Page;
 
-/// A frame holding an in-memory Page, pin count, and dirty state.
 pub struct Frame {
     pub page: Page,
     pub page_id: PageId,

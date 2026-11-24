@@ -1,5 +1,3 @@
-//! Heap table storage managing a sequence of slotted pages on disk.
-
 use crate::disk::DiskManager;
 use crate::fsm::FreeSpaceMap;
 use std::fs::File;
@@ -8,7 +6,6 @@ use theresav_common::{PageId, TupleId, PAGE_HEADER_SIZE, PAGE_SIZE};
 use theresav_error::StorageError;
 use theresav_page::PageType;
 
-/// Represents an append-and-update relational table heap file.
 pub struct HeapFile {
     _path: PathBuf,
     file: File,
@@ -16,7 +13,6 @@ pub struct HeapFile {
 }
 
 impl HeapFile {
-    /// Open or create a heap relation file.
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self, StorageError> {
         let p = path.as_ref().to_path_buf();
         if let Some(parent) = p.parent() {
@@ -41,9 +37,8 @@ impl HeapFile {
         })
     }
 
-    /// Insert a tuple into the heap. Finds a page with sufficient space or allocates a new one.
     pub fn insert_tuple(&mut self, tuple_data: &[u8]) -> Result<TupleId, StorageError> {
-        let needed_space = tuple_data.len() + 4; // slot directory overhead
+        let needed_space = tuple_data.len() + 4;
         if needed_space > PAGE_SIZE - PAGE_HEADER_SIZE {
             return Err(StorageError::CorruptedFile(format!(
                 "Tuple size {} exceeds maximum page capacity",
@@ -76,7 +71,6 @@ impl HeapFile {
         Ok(TupleId::new(target_page_id, slot_id))
     }
 
-    /// Retrieve a tuple by its 10-byte TupleId (page_id + slot_id).
     pub fn get_tuple(&mut self, tid: TupleId) -> Result<Vec<u8>, StorageError> {
         let page = DiskManager::read_page(&mut self.file, tid.page_id)?;
         let tuple_bytes = page.get_tuple(tid.slot_id).map_err(|e| {
@@ -85,7 +79,6 @@ impl HeapFile {
         Ok(tuple_bytes.to_vec())
     }
 
-    /// Delete a tuple by tombstoning its slot.
     pub fn delete_tuple(&mut self, tid: TupleId) -> Result<(), StorageError> {
         let mut page = DiskManager::read_page(&mut self.file, tid.page_id)?;
         page.delete_tuple(tid.slot_id).map_err(|e| {
@@ -97,12 +90,10 @@ impl HeapFile {
         Ok(())
     }
 
-    /// Total pages allocated to this heap.
     pub fn page_count(&self) -> Result<u64, StorageError> {
         DiskManager::page_count(&self.file)
     }
 
-    /// Flush data to disk.
     pub fn sync(&self) -> Result<(), StorageError> {
         DiskManager::sync(&self.file)
     }
@@ -129,14 +120,11 @@ mod tests {
         assert_eq!(heap.get_tuple(tid1).unwrap(), t1);
         assert_eq!(heap.get_tuple(tid2).unwrap(), t2);
 
-        // Delete t1
         heap.delete_tuple(tid1).expect("Delete must succeed");
         assert!(heap.get_tuple(tid1).is_err());
 
-        // Re-read t2 intact
         assert_eq!(heap.get_tuple(tid2).unwrap(), t2);
 
-        // Re-open from disk
         drop(heap);
         let mut reopened = HeapFile::open(&table_path).expect("Reopen must succeed");
         assert_eq!(reopened.get_tuple(tid2).unwrap(), t2);

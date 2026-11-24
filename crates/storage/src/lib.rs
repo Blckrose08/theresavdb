@@ -1,5 +1,3 @@
-//! Binary storage engine, disk manager, heap storage, and process locking for TheresavDB.
-
 pub mod disk;
 pub mod fsm;
 pub mod heap;

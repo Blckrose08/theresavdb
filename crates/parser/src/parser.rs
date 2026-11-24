@@ -1,5 +1,3 @@
-//! Recursive descent parser translating SQL token stream into TheresavSQL AST.
-
 use crate::ast::*;
 use crate::token::{Lexer, Token};
 use rust_decimal::Decimal;
@@ -530,27 +528,22 @@ mod tests {
 
     #[test]
     fn test_sql_parser_statements() {
-        // CREATE TABLE
         let sql1 = "CREATE TABLE users (id BIGINT PRIMARY KEY, name TEXT NOT NULL, age INTEGER);";
         let stmt1 = Parser::parse_sql(sql1).unwrap();
         assert!(matches!(stmt1, Statement::CreateTable { .. }));
 
-        // INSERT
         let sql2 = "INSERT INTO users (id, name, age) VALUES (1, 'Alice', 30);";
         let stmt2 = Parser::parse_sql(sql2).unwrap();
         assert!(matches!(stmt2, Statement::Insert { .. }));
 
-        // SELECT
         let sql3 = "SELECT id, name FROM users WHERE age >= 18 ORDER BY id ASC LIMIT 10;";
         let stmt3 = Parser::parse_sql(sql3).unwrap();
         assert!(matches!(stmt3, Statement::Select { .. }));
 
-        // UPDATE
         let sql4 = "UPDATE users SET age = 31 WHERE id = 1;";
         let stmt4 = Parser::parse_sql(sql4).unwrap();
         assert!(matches!(stmt4, Statement::Update { .. }));
 
-        // DELETE
         let sql5 = "DELETE FROM users WHERE id = 1;";
         let stmt5 = Parser::parse_sql(sql5).unwrap();
         assert!(matches!(stmt5, Statement::Delete { .. }));

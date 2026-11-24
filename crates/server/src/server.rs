@@ -1,5 +1,3 @@
-//! Async Tokio TCP server implementing the TheresavDB binary protocol.
-
 use crate::config::ServerConfig;
 use std::sync::Arc;
 use theresav_embedded::TheresavDB;
@@ -19,7 +17,6 @@ impl Server {
         Ok(Self { config, engine })
     }
 
-    /// Start listening for incoming TCP client connections.
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         let bind_addr = format!("{}:{}", self.config.host, self.config.port);
         let listener = TcpListener::bind(&bind_addr).await?;
@@ -48,7 +45,7 @@ async fn handle_connection(
     loop {
         let n = socket.read(&mut read_buf).await?;
         if n == 0 {
-            break; // Client closed connection
+            break;
         }
 
         let slice = &read_buf[..n];
@@ -70,7 +67,6 @@ async fn handle_connection(
                 let query_msg = MessageCodec::decode_query(&frame)?;
                 match engine.execute(&query_msg.sql) {
                     Ok(result) => {
-                        // Send RowDescription
                         if !result.columns.is_empty() {
                             let desc = MessageCodec::encode_row_desc(
                                 frame.header.request_id,
@@ -79,14 +75,12 @@ async fn handle_connection(
                             socket.write_all(&desc.encode()).await?;
                         }
 
-                        // Send DataRows
                         for row in result.rows {
                             let data_row =
                                 MessageCodec::encode_data_row(frame.header.request_id, row);
                             socket.write_all(&data_row.encode()).await?;
                         }
 
-                        // Send CommandComplete
                         let complete = MessageCodec::encode_complete(
                             frame.header.request_id,
                             result.rows_affected,

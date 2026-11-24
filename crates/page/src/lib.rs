@@ -1,5 +1,3 @@
-//! Binary page management and slotted page implementation for TheresavDB.
-
 pub mod header;
 pub mod page;
 pub mod slot;

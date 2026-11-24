@@ -1,5 +1,3 @@
-//! Value representation and binary serialization for all database types.
-
 use crate::data_type::DataType;
 use crate::jsonb::JsonbValue;
 use chrono::{DateTime, Datelike, NaiveDate, NaiveDateTime};
@@ -10,7 +8,6 @@ use std::fmt;
 use theresav_error::TypeError;
 use uuid::Uuid;
 
-/// Typed runtime value.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Value {
     Null,
@@ -32,7 +29,6 @@ pub enum Value {
 }
 
 impl Value {
-    /// Return the corresponding DataType.
     pub fn data_type(&self) -> Option<DataType> {
         match self {
             Self::Null => None,
@@ -59,10 +55,9 @@ impl Value {
         matches!(self, Self::Null)
     }
 
-    /// Explicit binary serialization of a Value (little-endian, bounds checked).
     pub fn serialize(&self, out: &mut Vec<u8>) {
         match self {
-            Self::Null => {} // Null is tracked in the tuple null bitmap
+            Self::Null => {}
             Self::Boolean(b) => out.push(if *b { 1 } else { 0 }),
             Self::SmallInt(v) => out.extend_from_slice(&v.to_le_bytes()),
             Self::Integer(v) => out.extend_from_slice(&v.to_le_bytes()),
@@ -102,7 +97,6 @@ impl Value {
         }
     }
 
-    /// Explicit binary deserialization of a Value from disk bytes.
     pub fn deserialize(data_type: DataType, bytes: &[u8]) -> Result<(Self, usize), TypeError> {
         match data_type {
             DataType::Boolean => {
@@ -291,7 +285,7 @@ impl Ord for Value {
             (Self::Date(a), Self::Date(b)) => a.cmp(b),
             (Self::Json(a), Self::Json(b)) => a.cmp(b),
             (Self::Jsonb(a), Self::Jsonb(b)) => a.cmp(b),
-            _ => Ordering::Equal, // cross-type comparisons handled via coercion in planner
+            _ => Ordering::Equal,
         }
     }
 }

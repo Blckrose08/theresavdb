@@ -1,5 +1,3 @@
-//! Lexer, AST, and parser for the TheresavSQL dialect.
-
 pub mod ast;
 pub mod parser;
 pub mod token;

@@ -1,10 +1,7 @@
-//! Data types supported by TheresavDB.
-
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use theresav_error::TypeError;
 
-/// Logical data type identifiers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum DataType {
@@ -55,7 +52,6 @@ impl DataType {
         self as u8
     }
 
-    /// Whether this type is fixed-length in its binary serialization.
     pub const fn fixed_size(&self) -> Option<usize> {
         match self {
             Self::Boolean => Some(1),
@@ -64,10 +60,10 @@ impl DataType {
             Self::BigInt => Some(8),
             Self::Real => Some(4),
             Self::Double => Some(8),
-            Self::Decimal => Some(16), // Fixed 16-byte layout (128-bit exact decimal)
+            Self::Decimal => Some(16),
             Self::Uuid => Some(16),
-            Self::Timestamp => Some(8), // i64 microseconds since epoch
-            Self::Date => Some(4),      // i32 days since epoch
+            Self::Timestamp => Some(8),
+            Self::Date => Some(4),
             Self::Text | Self::Varchar | Self::Bytea | Self::Json | Self::Jsonb => None,
         }
     }

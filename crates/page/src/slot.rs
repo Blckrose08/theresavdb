@@ -1,19 +1,13 @@
-//! Slot directory entry representation.
-
 use byteorder::{ByteOrder, LittleEndian};
 use theresav_common::SLOT_SIZE;
 
-/// 4-byte slot directory entry pointer to a tuple.
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct PageSlot {
-    /// Byte offset of the tuple start from the beginning of the page.
     pub offset: u16,
-    /// Byte length of the tuple data. 0 indicates a dead or tombstoned tuple.
     pub length: u16,
 }
 
-// Compile-time check: slot directory entry is exactly 4 bytes
 const _: () = assert!(std::mem::size_of::<PageSlot>() == SLOT_SIZE);
 
 impl PageSlot {

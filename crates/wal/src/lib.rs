@@ -1,5 +1,3 @@
-//! Write-Ahead Logging (WAL) engine for crash recovery and ACID durability.
-
 pub mod reader;
 pub mod record;
 pub mod writer;

@@ -1,5 +1,3 @@
-//! System Catalog Registry managing tables, schemas, and indexes.
-
 use crate::column::ColumnCatalog;
 use crate::table::{IndexCatalog, TableCatalog};
 use std::collections::HashMap;
@@ -8,7 +6,6 @@ use std::sync::RwLock;
 use theresav_common::Oid;
 use theresav_error::CatalogError;
 
-/// Thread-safe system catalog holding database relational schemas.
 pub struct Catalog {
     next_oid: AtomicU64,
     tables: RwLock<HashMap<String, TableCatalog>>,
@@ -24,7 +21,7 @@ impl Default for Catalog {
 impl Catalog {
     pub fn new() -> Self {
         Self {
-            next_oid: AtomicU64::new(1000), // First user OID starts at 1000
+            next_oid: AtomicU64::new(1000),
             tables: RwLock::new(HashMap::new()),
             indexes: RwLock::new(HashMap::new()),
         }
@@ -34,7 +31,6 @@ impl Catalog {
         Oid::new(self.next_oid.fetch_add(1, Ordering::SeqCst))
     }
 
-    /// Register a new table schema in the catalog.
     pub fn create_table(
         &self,
         name: &str,
@@ -54,13 +50,11 @@ impl Catalog {
         Ok(oid)
     }
 
-    /// Drop a table schema from the catalog.
     pub fn drop_table(&self, name: &str) -> Result<(), CatalogError> {
         let mut tables = self.tables.write().unwrap();
         let lower_name = name.to_ascii_lowercase();
 
         if tables.remove(&lower_name).is_some() {
-            // Also drop associated indexes
             let mut indexes = self.indexes.write().unwrap();
             indexes.retain(|_, idx| !idx.table_name.eq_ignore_ascii_case(name));
             Ok(())
@@ -69,13 +63,11 @@ impl Catalog {
         }
     }
 
-    /// Check if table exists.
     pub fn table_exists(&self, name: &str) -> bool {
         let tables = self.tables.read().unwrap();
         tables.contains_key(&name.to_ascii_lowercase())
     }
 
-    /// Get table metadata by name.
     pub fn get_table(&self, name: &str) -> Result<TableCatalog, CatalogError> {
         let tables = self.tables.read().unwrap();
         tables
@@ -84,7 +76,6 @@ impl Catalog {
             .ok_or_else(|| CatalogError::TableNotFound(name.to_string()))
     }
 
-    /// Register a secondary index in the catalog.
     pub fn create_index(
         &self,
         name: &str,
@@ -113,7 +104,6 @@ impl Catalog {
         Ok(oid)
     }
 
-    /// Get index metadata by name.
     pub fn get_index(&self, name: &str) -> Result<IndexCatalog, CatalogError> {
         let indexes = self.indexes.read().unwrap();
         indexes
@@ -122,7 +112,6 @@ impl Catalog {
             .ok_or_else(|| CatalogError::IndexNotFound(name.to_string()))
     }
 
-    /// List all table names in catalog.
     pub fn list_tables(&self) -> Vec<String> {
         let tables = self.tables.read().unwrap();
         tables.values().map(|t| t.name.clone()).collect()
@@ -153,13 +142,11 @@ mod tests {
         assert_eq!(table.primary_key, Some("id".to_string()));
         assert_eq!(table.column_index("email"), Some(2));
 
-        // Create unique index
         let idx_oid = catalog
             .create_index("idx_users_email", "users", vec!["email".to_string()], true)
             .unwrap();
         assert!(idx_oid.is_valid());
 
-        // Drop table
         catalog.drop_table("users").unwrap();
         assert!(!catalog.table_exists("users"));
     }

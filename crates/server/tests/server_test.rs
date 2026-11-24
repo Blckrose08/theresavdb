@@ -8,7 +8,7 @@ use tokio::net::TcpStream;
 #[tokio::test]
 async fn test_tcp_server_end_to_end_query() {
     let dir = tempdir().unwrap();
-    let port = 17432; // custom test port
+    let port = 17432;
 
     let config = ServerConfig {
         host: "127.0.0.1".to_string(),
@@ -20,20 +20,16 @@ async fn test_tcp_server_end_to_end_query() {
 
     let server = Arc::new(Server::new(config).expect("Server initialization should succeed"));
 
-    // Spawn server in background task
     tokio::spawn(async move {
         let _ = server.run().await;
     });
 
-    // Wait a brief moment for socket to bind
     tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
 
-    // Connect client
     let mut stream = TcpStream::connect(format!("127.0.0.1:{}", port))
         .await
         .expect("Client should connect to TCP server");
 
-    // 1. Send Ping
     let ping_frame = Frame::new(MessageType::Ping, 10, vec![]);
     stream.write_all(&ping_frame.encode()).await.unwrap();
 
@@ -43,7 +39,6 @@ async fn test_tcp_server_end_to_end_query() {
     assert_eq!(resp_frame.header.message_type, MessageType::Pong);
     assert_eq!(resp_frame.header.request_id, 10);
 
-    // 2. Send CREATE TABLE query
     let query_frame = MessageCodec::encode_query(11, "CREATE TABLE cars (id INTEGER, brand TEXT);");
     stream.write_all(&query_frame.encode()).await.unwrap();
 
@@ -54,7 +49,6 @@ async fn test_tcp_server_end_to_end_query() {
         MessageType::CommandComplete
     );
 
-    // 3. Send INSERT query
     let insert_frame = MessageCodec::encode_query(
         12,
         "INSERT INTO cars (id, brand) VALUES (1, 'Tesla'), (2, 'Porsche');",
@@ -68,7 +62,6 @@ async fn test_tcp_server_end_to_end_query() {
         MessageType::CommandComplete
     );
 
-    // 4. Send SELECT query
     let select_frame = MessageCodec::encode_query(13, "SELECT id, brand FROM cars WHERE id = 1;");
     stream.write_all(&select_frame.encode()).await.unwrap();
 

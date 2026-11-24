@@ -1,5 +1,3 @@
-//! Binary wire protocol engine for TheresavDB.
-
 pub mod frame;
 pub mod message;
 

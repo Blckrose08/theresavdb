@@ -1,5 +1,3 @@
-//! Comprehensive performance benchmarks for TheresavDB storage engine, WAL, Index, and Embedded query engine.
-
 use std::time::Instant;
 use tempfile::tempdir;
 use theresav_buffer_pool::BufferPoolManager;
@@ -28,7 +26,7 @@ fn main() {
 fn bench_page_operations() {
     println!("\n--- [1] 16 KiB Slotted Page Insertion & Compaction ---");
     let mut page = Page::new(PageId(1), PageType::SlottedData);
-    let payload = vec![0xABu8; 128]; // 128-byte tuple payload
+    let payload = vec![0xABu8; 128];
     let tuple = Tuple::new(TxId(100), TxId(0), 0, 1, vec![0], payload);
     let tuple_bytes = tuple.serialize();
 
@@ -49,7 +47,6 @@ fn bench_page_operations() {
         free_space
     );
 
-    // Benchmark in-place compaction
     let start = Instant::now();
     page.delete_tuple(SlotId(5)).unwrap();
     page.delete_tuple(SlotId(10)).unwrap();
@@ -81,7 +78,7 @@ fn bench_wal_throughput() {
     wal.flush().unwrap();
     let duration = start.elapsed();
 
-    let total_bytes = iterations * (34 + 64); // 34-byte header + 64 payload
+    let total_bytes = iterations * (34 + 64);
     let mb = (total_bytes as f64) / (1024.0 * 1024.0);
     let throughput_mb_s = mb / duration.as_secs_f64();
     let ops_sec = (iterations as f64) / duration.as_secs_f64();
@@ -94,7 +91,7 @@ fn bench_wal_throughput() {
 
 fn bench_btree_index() {
     println!("\n--- [3] B-Tree Index (Unique & Composite Keys) ---");
-    let mut btree = BTreeIndex::new(PageId(1), true); // unique
+    let mut btree = BTreeIndex::new(PageId(1), true);
     let iterations = 5_000;
 
     let start = Instant::now();
@@ -138,7 +135,6 @@ fn bench_buffer_pool() {
     let db_path = dir.path().join("bench.db");
     let file = DiskManager::open_file(&db_path).unwrap();
 
-    // 64-frame buffer pool
     let bpm = BufferPoolManager::new(64, file);
 
     let iterations = 200;
@@ -155,7 +151,6 @@ fn bench_buffer_pool() {
         }
         bpm.unpin_page(page_id, true).unwrap();
 
-        // Fetch back and verify
         let fetched = bpm.fetch_page(page_id).unwrap();
         {
             let guard = fetched.read().unwrap();

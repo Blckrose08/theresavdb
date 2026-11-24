@@ -1,8 +1,5 @@
-//! Abstract Syntax Tree (AST) definitions for TheresavSQL.
-
 use theresav_types::{DataType, Value};
 
-/// Binary Operators in SQL expressions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BinaryOp {
     Eq,
@@ -19,14 +16,12 @@ pub enum BinaryOp {
     Or,
 }
 
-/// Unary Operators.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UnaryOp {
     Not,
     Negate,
 }
 
-/// SQL Expressions.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Literal(Value),
@@ -43,7 +38,6 @@ pub enum Expr {
     Wildcard,
 }
 
-/// Column definition in `CREATE TABLE`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ColumnDef {
     pub name: String,
@@ -52,14 +46,12 @@ pub struct ColumnDef {
     pub nullable: bool,
 }
 
-/// Order by direction.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OrderDirection {
     Asc,
     Desc,
 }
 
-/// SQL Statements supported by TheresavSQL.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     CreateTable {

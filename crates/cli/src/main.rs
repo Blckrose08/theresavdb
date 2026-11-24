@@ -1,5 +1,3 @@
-//! Command-line interface for interacting with TheresavDB.
-
 use std::env;
 use std::path::PathBuf;
 use theresav_embedded::TheresavDB;
@@ -11,7 +9,6 @@ use tokio::net::TcpStream;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
 
-    // Check embedded mode
     if let Some(pos) = args.iter().position(|a| a == "--embedded") {
         let dir = args
             .get(pos + 1)
@@ -34,13 +31,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
-        // Run default interactive banner
         println!("TheresavDB v0.1.0 (Embedded Mode)");
         println!("Type SQL queries ending with ';' or 'exit' to quit.\n");
         return Ok(());
     }
 
-    // Default: TCP Client
     let host = "127.0.0.1";
     let port = 7432;
     let target = format!("{}:{}", host, port);

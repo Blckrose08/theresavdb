@@ -1,10 +1,7 @@
-//! Table and Index metadata catalog definitions.
-
 use crate::column::ColumnCatalog;
 use serde::{Deserialize, Serialize};
 use theresav_common::Oid;
 
-/// Metadata describing a relational table.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TableCatalog {
     pub oid: Oid,
@@ -42,7 +39,6 @@ impl TableCatalog {
     }
 }
 
-/// Metadata describing a secondary or unique index.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IndexCatalog {
     pub oid: Oid,

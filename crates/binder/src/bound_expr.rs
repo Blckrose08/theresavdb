@@ -1,5 +1,3 @@
-//! Bound expressions with resolved catalog types and evaluation routines.
-
 use std::cmp::Ordering;
 use theresav_error::TypeError;
 use theresav_parser::ast::{BinaryOp, UnaryOp};

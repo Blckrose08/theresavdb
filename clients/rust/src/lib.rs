@@ -1,5 +1,3 @@
-//! High-performance async Rust client for TheresavDB over binary wire protocol.
-
 use std::sync::atomic::{AtomicU64, Ordering};
 use theresav_error::TheresavError;
 use theresav_protocol::{Frame, MessageCodec, MessageType};
@@ -19,7 +17,6 @@ pub struct TheresavClient {
 }
 
 impl TheresavClient {
-    /// Connect to a running TheresavDB instance over TCP.
     pub async fn connect(addr: &str) -> Result<Self, TheresavError> {
         let stream = TcpStream::connect(addr).await?;
         let client = Self {
@@ -29,7 +26,6 @@ impl TheresavClient {
         Ok(client)
     }
 
-    /// Execute a SQL statement and receive query results.
     pub async fn query(&mut self, sql: &str) -> Result<QueryResult, TheresavError> {
         let req_id = self.next_req_id.fetch_add(1, Ordering::SeqCst);
         let query_frame = MessageCodec::encode_query(req_id, sql);
@@ -86,7 +82,7 @@ impl TheresavClient {
                             _ => {}
                         }
                     }
-                    Err(_) => break, // Awaiting more bytes
+                    Err(_) => break,
                 }
             }
 

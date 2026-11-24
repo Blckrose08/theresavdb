@@ -1,9 +1,6 @@
-//! Column metadata catalog definitions.
-
 use serde::{Deserialize, Serialize};
 use theresav_types::DataType;
 
-/// Metadata describing a single relational table column.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ColumnCatalog {
     pub name: String,

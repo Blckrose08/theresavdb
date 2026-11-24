@@ -1,10 +1,7 @@
-//! Index keys supporting single and composite column values with strict ordering.
-
 use std::cmp::Ordering;
 use theresav_error::TypeError;
 use theresav_types::{DataType, Value};
 
-/// Composite or single-column index key.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IndexKey(pub Vec<Value>);
 
@@ -17,7 +14,6 @@ impl IndexKey {
         Self(vals)
     }
 
-    /// Serialize composite key into binary bytes.
     pub fn serialize(&self) -> Vec<u8> {
         let mut out = Vec::new();
         out.push(self.0.len() as u8);
@@ -26,13 +22,12 @@ impl IndexKey {
                 out.push(dt.to_u8());
                 val.serialize(&mut out);
             } else {
-                out.push(0); // Null marker
+                out.push(0);
             }
         }
         out
     }
 
-    /// Deserialize composite key from binary bytes.
     pub fn deserialize(bytes: &[u8]) -> Result<(Self, usize), TypeError> {
         if bytes.is_empty() {
             return Err(TypeError::InvalidEncoding(

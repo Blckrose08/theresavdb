@@ -1,5 +1,3 @@
-//! Transaction lifecycle manager coordinating ACID transactions, WAL, and locks.
-
 use std::collections::HashSet;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
@@ -52,7 +50,6 @@ impl TransactionManager {
         }
     }
 
-    /// Begin a new transaction and log BEGIN record to WAL.
     pub fn begin(&self, isolation: IsolationLevel) -> Result<Transaction, TransactionError> {
         let tx_id = TxId::new(self.next_tx_id.fetch_add(1, Ordering::SeqCst));
 
@@ -76,7 +73,6 @@ impl TransactionManager {
         })
     }
 
-    /// Commit transaction, flush WAL durable record, and release all locks.
     pub fn commit(&self, tx: &mut Transaction) -> Result<(), TransactionError> {
         if tx.state != TransactionState::Active {
             return Err(TransactionError::AlreadyFinished(tx.tx_id));
@@ -103,7 +99,6 @@ impl TransactionManager {
         Ok(())
     }
 
-    /// Rollback transaction, log ABORT record, and release all locks.
     pub fn abort(&self, tx: &mut Transaction) -> Result<(), TransactionError> {
         if tx.state != TransactionState::Active {
             return Err(TransactionError::AlreadyFinished(tx.tx_id));

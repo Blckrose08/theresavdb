@@ -1,5 +1,3 @@
-//! Concurrency Lock Manager with hierarchical locking and deadlock detection.
-
 use std::collections::{HashMap, HashSet};
 use std::sync::{Mutex, RwLock};
 use theresav_common::{Oid, TupleId, TxId};
@@ -15,7 +13,6 @@ pub enum LockMode {
 }
 
 impl LockMode {
-    /// Lock compatibility matrix.
     pub fn is_compatible(&self, other: &LockMode) -> bool {
         matches!(
             (self, other),
@@ -30,7 +27,6 @@ impl LockMode {
     }
 }
 
-/// Resource being locked.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ResourceId {
     Table(Oid),
@@ -38,9 +34,7 @@ pub enum ResourceId {
 }
 
 pub struct LockManager {
-    // Resource -> List of (TxId, LockMode)
     locks: RwLock<HashMap<ResourceId, Vec<(TxId, LockMode)>>>,
-    // Wait-For Graph: TxId waiting for TxId
     wait_for: Mutex<HashMap<TxId, HashSet<TxId>>>,
 }
 
@@ -58,7 +52,6 @@ impl LockManager {
         }
     }
 
-    /// Acquire a lock on a table or row.
     pub fn acquire(
         &self,
         tx_id: TxId,
@@ -68,7 +61,6 @@ impl LockManager {
         let mut locks = self.locks.write().unwrap();
         let current_locks = locks.entry(resource).or_default();
 
-        // Check if transaction already holds this lock or compatible
         if let Some((_, current_mode)) = current_locks.iter().find(|(t, _)| *t == tx_id) {
             if *current_mode == mode
                 || (*current_mode == LockMode::Exclusive && mode == LockMode::Shared)
@@ -77,13 +69,11 @@ impl LockManager {
             }
         }
 
-        // Check compatibility with existing locks
         let has_conflict = current_locks
             .iter()
             .any(|(t, m)| *t != tx_id && !m.is_compatible(&mode));
 
         if has_conflict {
-            // Record dependencies in Wait-For Graph and check for deadlocks
             let mut wfg = self.wait_for.lock().unwrap();
             let waiting_set = wfg.entry(tx_id).or_default();
 
@@ -93,7 +83,6 @@ impl LockManager {
                 }
             }
 
-            // Check deadlock (cycle detection via DFS)
             if self.detect_deadlock_cycle(&wfg, tx_id) {
                 return Err(TransactionError::Deadlock);
             }
@@ -105,7 +94,6 @@ impl LockManager {
         Ok(())
     }
 
-    /// Release all locks held by a transaction upon commit or abort.
     pub fn release_all(&self, tx_id: TxId) {
         let mut locks = self.locks.write().unwrap();
         for list in locks.values_mut() {
@@ -139,7 +127,7 @@ impl LockManager {
                             return true;
                         }
                     } else if stack.contains(&neighbor) {
-                        return true; // Cycle found
+                        return true;
                     }
                 }
             }
@@ -164,19 +152,14 @@ mod tests {
         let res1 = ResourceId::Table(Oid::new(10));
         let res2 = ResourceId::Table(Oid::new(20));
 
-        // T1 takes Exclusive on Res1
         lm.acquire(t1, res1, LockMode::Exclusive).unwrap();
 
-        // T2 taking Exclusive on Res1 must conflict
         assert!(lm.acquire(t2, res1, LockMode::Exclusive).is_err());
 
-        // T2 takes Exclusive on Res2
         lm.acquire(t2, res2, LockMode::Exclusive).unwrap();
 
-        // Release T1
         lm.release_all(t1);
 
-        // Now T2 can take Res1
         assert!(lm.acquire(t2, res1, LockMode::Exclusive).is_ok());
     }
 }

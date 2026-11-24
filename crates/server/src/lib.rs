@@ -1,5 +1,3 @@
-//! TCP Server for TheresavDB.
-
 pub mod config;
 pub mod server;
 

@@ -1,5 +1,3 @@
-//! Semantic analysis and AST binding against the system catalog.
-
 use crate::expr::BoundExpr;
 use crate::statement::BoundStatement;
 use theresav_catalog::{Catalog, TableCatalog};

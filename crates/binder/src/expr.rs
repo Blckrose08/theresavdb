@@ -1,5 +1,3 @@
-//! Bound expressions with resolved column indices and data types.
-
 use theresav_error::TypeError;
 use theresav_parser::ast::{BinaryOp, UnaryOp};
 use theresav_types::{DataType, Value};

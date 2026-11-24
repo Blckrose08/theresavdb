@@ -1,12 +1,9 @@
-//! WAL log reader for crash recovery and replication stream ingestion.
-
 use crate::record::WalRecord;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use theresav_error::WalError;
 
-/// Sequential WAL reader scanning log records from disk.
 pub struct WalReader {
     buffer: Vec<u8>,
     cursor: usize,
@@ -24,7 +21,6 @@ impl WalReader {
         Ok(Self { buffer, cursor: 0 })
     }
 
-    /// Read next valid record from the WAL stream.
     pub fn next_record(&mut self) -> Result<Option<WalRecord>, WalError> {
         if self.cursor >= self.buffer.len() {
             return Ok(None);
@@ -76,7 +72,6 @@ mod tests {
 
         assert!(writer.flushed_lsn() >= lsn3);
 
-        // Read records back using WalReader
         let mut reader = WalReader::open(&wal_path).unwrap();
 
         let r1 = reader.next_record().unwrap().unwrap();

@@ -1,5 +1,3 @@
-//! Index catalog metadata.
-
 use serde::{Deserialize, Serialize};
 use theresav_common::Oid;
 

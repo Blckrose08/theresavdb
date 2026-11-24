@@ -1,5 +1,3 @@
-//! Logical and physical type system for TheresavDB.
-
 pub mod data_type;
 pub mod jsonb;
 pub mod value;

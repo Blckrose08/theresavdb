@@ -1,5 +1,3 @@
-//! Database server configuration and runtime.
-
 use std::path::PathBuf;
 
 #[derive(Debug, Clone)]

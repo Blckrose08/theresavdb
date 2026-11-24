@@ -1,5 +1,3 @@
-//! Query optimization engine for TheresavDB.
-
 pub mod optimizer;
 pub mod plan;
 

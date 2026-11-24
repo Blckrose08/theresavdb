@@ -1,11 +1,8 @@
-//! Binary JSON (JSONB) implementation for TheresavDB.
-
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt;
 use theresav_error::TypeError;
 
-/// JSONB values decomposed into a validated internal representation.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum JsonbValue {
     Null,
@@ -25,7 +22,6 @@ const JSONB_TAG_ARRAY: u8 = 5;
 const JSONB_TAG_OBJECT: u8 = 6;
 
 impl JsonbValue {
-    /// Parse from valid JSON text.
     pub fn parse_str(json_str: &str) -> Result<Self, TypeError> {
         let serde_val: serde_json::Value =
             serde_json::from_str(json_str).map_err(|e| TypeError::InvalidJson(e.to_string()))?;
@@ -57,7 +53,6 @@ impl JsonbValue {
         }
     }
 
-    /// Explicit binary serialization of JSONB.
     pub fn encode(&self, out: &mut Vec<u8>) {
         match self {
             Self::Null => out.push(JSONB_TAG_NULL),
@@ -93,7 +88,6 @@ impl JsonbValue {
         }
     }
 
-    /// Binary deserialization of JSONB.
     pub fn decode(bytes: &[u8]) -> Result<(Self, usize), TypeError> {
         if bytes.is_empty() {
             return Err(TypeError::InvalidEncoding("Empty buffer for JSONB".into()));

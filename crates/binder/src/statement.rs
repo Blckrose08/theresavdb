@@ -1,5 +1,3 @@
-//! Bound SQL statements.
-
 use crate::expr::BoundExpr;
 use theresav_catalog::TableCatalog;
 use theresav_parser::ast::{ColumnDef, OrderDirection};

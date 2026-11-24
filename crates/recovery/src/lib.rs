@@ -1,5 +1,3 @@
-//! ARIES Crash Recovery Engine (Analysis, Redo, Undo with Compensation Log Records).
-
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use theresav_common::{Lsn, TxId};
@@ -17,7 +15,6 @@ pub struct RecoveryStats {
 pub struct RecoveryManager;
 
 impl RecoveryManager {
-    /// Perform full crash recovery from WAL records.
     pub fn recover_from_wal<P: AsRef<Path>>(
         wal_path: P,
         heap: &mut HeapFile,
@@ -25,7 +22,6 @@ impl RecoveryManager {
         let mut reader = WalReader::open(wal_path)?;
         let mut records = Vec::new();
 
-        // 1. ANALYSIS PHASE
         let mut active_txs: HashSet<TxId> = HashSet::new();
         let mut last_lsn_per_tx: HashMap<TxId, Lsn> = HashMap::new();
 
@@ -54,7 +50,6 @@ impl RecoveryManager {
             undone_transactions: active_txs.len(),
         };
 
-        // 2. REDO PHASE: Replay all operations forward
         for record in &records {
             if record.record_type == WalRecordType::Insert && !record.payload.is_empty() {
                 let _ = heap.insert_tuple(&record.payload);
@@ -62,8 +57,6 @@ impl RecoveryManager {
             }
         }
 
-        // 3. UNDO PHASE: Uncommitted transactions (loser transactions) are undone
-        // In our slotted tuple architecture, aborted insertions leave dead slots.
         heap.sync()
             .map_err(|e| WalError::RecoveryFailed(e.to_string()))?;
 
@@ -83,7 +76,6 @@ mod tests {
         let wal_path = dir.path().join("theresav.wal");
         let heap_path = dir.path().join("recovered.thdb");
 
-        // Write WAL simulating a crash before Tx 2 commits
         let writer = WalWriter::open(&wal_path).unwrap();
         let t1 = TxId::new(10);
         let t2 = TxId::new(20);
@@ -98,7 +90,6 @@ mod tests {
             .append(l2, t1, WalRecordType::Commit, vec![])
             .unwrap();
 
-        // Tx 2 begins and inserts but crashes before commit
         let l3 = writer
             .append(Lsn::INVALID, t2, WalRecordType::Begin, vec![])
             .unwrap();
@@ -107,11 +98,10 @@ mod tests {
             .unwrap();
         writer.flush().unwrap();
 
-        // Run recovery
         let mut heap = HeapFile::open(&heap_path).unwrap();
         let stats = RecoveryManager::recover_from_wal(&wal_path, &mut heap).unwrap();
 
         assert_eq!(stats.records_analyzed, 5);
-        assert_eq!(stats.undone_transactions, 1); // Tx 2 was active at crash
+        assert_eq!(stats.undone_transactions, 1);
     }
 }

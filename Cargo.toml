@@ -52,7 +52,6 @@ byteorder = "1.5"
 tempfile = "3.27"
 libc = "0.2"
 
-# Internal crates
 theresav_common = { path = "crates/common" }
 theresav_error = { path = "crates/error" }
 theresav_types = { path = "crates/types" }

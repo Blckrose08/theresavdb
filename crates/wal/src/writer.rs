@@ -1,5 +1,3 @@
-//! WAL append-only log writer with group commit and durable sync.
-
 use crate::record::{WalRecord, WalRecordType};
 use std::fs::{File, OpenOptions};
 use std::io::Write;
@@ -9,7 +7,6 @@ use std::sync::Mutex;
 use theresav_common::{Lsn, TxId};
 use theresav_error::WalError;
 
-/// WAL Writer managing durable write-ahead logging to disk.
 pub struct WalWriter {
     _path: PathBuf,
     file: Mutex<File>,
@@ -18,7 +15,6 @@ pub struct WalWriter {
 }
 
 impl WalWriter {
-    /// Open or create the WAL segment file.
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self, WalError> {
         let p = path.as_ref().to_path_buf();
         if let Some(parent) = p.parent() {
@@ -46,7 +42,6 @@ impl WalWriter {
         })
     }
 
-    /// Append a WAL record and return its allocated LSN.
     pub fn append(
         &self,
         prev_lsn: Lsn,
@@ -66,7 +61,6 @@ impl WalWriter {
         let new_lsn = allocated_lsn.0 + bytes.len() as u64;
         self.current_lsn.store(new_lsn, Ordering::SeqCst);
 
-        // If transaction commits or aborts, flush immediately (group commit / durability guarantee)
         if record_type == WalRecordType::Commit || record_type == WalRecordType::Abort {
             file.sync_data().map_err(|e| {
                 WalError::CorruptedRecord(format!("Failed to sync WAL to disk: {}", e))
@@ -77,7 +71,6 @@ impl WalWriter {
         Ok(allocated_lsn)
     }
 
-    /// Explicitly flush and sync all pending records to disk.
     pub fn flush(&self) -> Result<(), WalError> {
         let file = self.file.lock().unwrap();
         file.sync_data()
@@ -87,12 +80,10 @@ impl WalWriter {
         Ok(())
     }
 
-    /// Latest allocated LSN.
     pub fn current_lsn(&self) -> Lsn {
         Lsn::new(self.current_lsn.load(Ordering::SeqCst))
     }
 
-    /// Latest durable LSN synced to physical storage.
     pub fn flushed_lsn(&self) -> Lsn {
         Lsn::new(self.flushed_lsn.load(Ordering::SeqCst))
     }

@@ -1,18 +1,7 @@
-//! Physical tuple representation with MVCC metadata and null bitmap.
-
 use byteorder::{ByteOrder, LittleEndian};
 use theresav_common::TxId;
 use theresav_error::PageError;
 
-/// Physical Tuple stored in a Slotted Page.
-/// Layout:
-/// - xmin: 8 bytes (u64)
-/// - xmax: 8 bytes (u64)
-/// - flags: 2 bytes (u16)
-/// - schema_version: 4 bytes (u32)
-/// - null_bitmap_len: 2 bytes (u16)
-/// - null_bitmap: [u8; null_bitmap_len]
-/// - payload: [u8]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Tuple {
     pub xmin: TxId,
@@ -23,7 +12,7 @@ pub struct Tuple {
     pub payload: Vec<u8>,
 }
 
-pub const TUPLE_HEADER_MIN_SIZE: usize = 8 + 8 + 2 + 4 + 2; // 24 bytes
+pub const TUPLE_HEADER_MIN_SIZE: usize = 8 + 8 + 2 + 4 + 2;
 
 impl Tuple {
     pub fn new(
@@ -44,7 +33,6 @@ impl Tuple {
         }
     }
 
-    /// Serialize tuple to binary bytes with explicit little-endian ordering.
     pub fn serialize(&self) -> Vec<u8> {
         let total_size = TUPLE_HEADER_MIN_SIZE + self.null_bitmap.len() + self.payload.len();
         let mut out = Vec::with_capacity(total_size);
@@ -60,7 +48,6 @@ impl Tuple {
         out
     }
 
-    /// Deserialize tuple from binary slice with bounds validation.
     pub fn deserialize(bytes: &[u8]) -> Result<Self, PageError> {
         if bytes.len() < TUPLE_HEADER_MIN_SIZE {
             return Err(PageError::TupleCorrupted(format!(

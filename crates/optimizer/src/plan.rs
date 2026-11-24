@@ -1,5 +1,3 @@
-//! Physical Query Plan representations.
-
 use theresav_binder::BoundExpr;
 use theresav_catalog::TableCatalog;
 use theresav_parser::ast::{ColumnDef, OrderDirection};

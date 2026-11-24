@@ -1,9 +1,6 @@
-//! Structured domain error hierarchy for TheresavDB.
-
 use theresav_common::{PageId, SlotId, TxId};
 use thiserror::Error;
 
-/// Master error type for all TheresavDB operations.
 #[derive(Debug, Error)]
 pub enum TheresavError {
     #[error("Page error: {0}")]
@@ -37,7 +34,6 @@ pub enum TheresavError {
     Internal(String),
 }
 
-/// Errors related to physical 16 KiB binary page layout and validation.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum PageError {
     #[error("Invalid magic bytes: expected b\"THDB\", found {0:?}")]
@@ -78,7 +74,6 @@ pub enum PageError {
     InvalidPageType(u16),
 }
 
-/// Errors occurring during data type conversion, arithmetic, or serialization.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum TypeError {
     #[error("Type mismatch: expected {expected}, found {found}")]
@@ -103,7 +98,6 @@ pub enum TypeError {
     InvalidJson(String),
 }
 
-/// Errors occurring in the storage engine, heap file manager, or buffer pool.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum StorageError {
     #[error("Page not found: {0}")]
@@ -122,7 +116,6 @@ pub enum StorageError {
     Io(String),
 }
 
-/// Errors in transaction lifecycle, concurrency control, or isolation.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum TransactionError {
     #[error("Transaction {0} is aborted")]
@@ -144,7 +137,6 @@ pub enum TransactionError {
     Timeout,
 }
 
-/// Errors during Write-Ahead Logging or crash recovery.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum WalError {
     #[error("WAL record corrupted: {0}")]
@@ -160,7 +152,6 @@ pub enum WalError {
     RecoveryFailed(String),
 }
 
-/// Errors interacting with system catalogs or metadata objects.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum CatalogError {
     #[error("Table '{0}' does not exist")]
@@ -179,7 +170,6 @@ pub enum CatalogError {
     SchemaVersionMismatch { expected: u32, found: u32 },
 }
 
-/// Errors in client-server wire protocol framing or dispatch.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum ProtocolError {
     #[error("Invalid protocol magic bytes: expected b\"THRP\", found {0:?}")]
@@ -201,7 +191,6 @@ pub enum ProtocolError {
     Other(String),
 }
 
-/// Authentication and authorization errors.
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
 pub enum AuthError {
     #[error("Authentication failed: invalid username or password")]
@@ -220,5 +209,4 @@ pub enum AuthError {
     UnsupportedMechanism(String),
 }
 
-/// Global Result type alias for TheresavDB.
 pub type Result<T, E = TheresavError> = std::result::Result<T, E>;
