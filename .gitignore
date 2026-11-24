@@ -6,3 +6,4 @@ Cargo.lock
 data/
 *.db
 *.wal
+clients/node/node_modules/
