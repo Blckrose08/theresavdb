@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   theresavdb:
+    image: blckrose08/theresavdb:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile
