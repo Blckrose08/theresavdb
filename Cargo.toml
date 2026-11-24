@@ -9,6 +9,12 @@ members = [
     "crates/buffer-pool",
     "crates/wal",
     "crates/index",
+    "crates/catalog",
+    "crates/parser",
+    "crates/binder",
+    "crates/planner",
+    "crates/optimizer",
+    "crates/executor",
 ]
 
 [workspace.package]
@@ -38,3 +44,9 @@ theresav_error = { path = "crates/error" }
 theresav_types = { path = "crates/types" }
 theresav_page = { path = "crates/page" }
 theresav_storage = { path = "crates/storage" }
+theresav_index = { path = "crates/index" }
+theresav_catalog = { path = "crates/catalog" }
+theresav_parser = { path = "crates/parser" }
+theresav_binder = { path = "crates/binder" }
+theresav_planner = { path = "crates/planner" }
+theresav_optimizer = { path = "crates/optimizer" }

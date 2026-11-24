@@ -1,0 +1,15 @@
+[package]
+name = "theresav_binder"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+theresav_common = { workspace = true }
+theresav_error = { workspace = true }
+theresav_types = { workspace = true }
+theresav_catalog = { workspace = true }
+theresav_parser = { workspace = true }
