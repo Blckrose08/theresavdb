@@ -1,0 +1,26 @@
+[package]
+name = "theresav-fuzz"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+theresav_common = { path = "../../crates/common" }
+theresav_page = { path = "../../crates/page" }
+theresav_types = { path = "../../crates/types" }
+
+[[bin]]
+name = "fuzz_page_decode"
+path = "fuzz_targets/fuzz_page_decode.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_tuple_decode"
+path = "fuzz_targets/fuzz_tuple_decode.rs"
+test = false
+doc = false

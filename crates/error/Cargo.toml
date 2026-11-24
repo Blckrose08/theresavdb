@@ -1,0 +1,12 @@
+[package]
+name = "theresav_error"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+theresav_common = { workspace = true }
